@@ -33,10 +33,6 @@ class _EasyRefreshListPageState extends State<IntentListPage> {
   // 加载数据方法
   Future<void> _loadData({bool init = false}) async {
     if (init) {
-      Map<String, dynamic> map = new Map();
-      map[""] = "";
-      // await AirwallexManager.instance.airwallexLogin();
-      // await AirwallexManager.instance.getPaymentIntents(param: map);
       setState(() {
         _isLoading = true;
         _error = null;
@@ -46,6 +42,22 @@ class _EasyRefreshListPageState extends State<IntentListPage> {
     }
 
     try {
+      const keys = ['from_created_at', 'merchant_order_id', 'page_num', 'page_size', 'to_created_at'];
+
+      Map<String, dynamic> map = new Map();
+      DateTime parsedTime = DateTime.parse('2025-06-24 06:57:10');
+      String from_created_at = parsedTime.toIso8601String();
+      DateTime parsedTime2 = DateTime.parse('2025-06-27 06:57:10');
+      String to_created_at = parsedTime2.toIso8601String();
+
+      String merchant_order_id = "CB202506261924111";
+
+      map["from_created_at"] = from_created_at;
+      map["merchant_order_id"] = merchant_order_id;
+      map["page_num"] = _page;
+      map["page_size"] = _pageSize;
+      map["to_created_at"] = to_created_at;
+      await AirwallexManager.instance.getPaymentIntents(param: map);
       // 模拟网络请求延迟
       await Future.delayed(const Duration(seconds: 1));
 

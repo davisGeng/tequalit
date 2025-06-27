@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuple/tuple.dart';
+import 'package:untitled3/api/ApiService.dart' show ApiService;
 import 'package:untitled3/util/airwallex_manager.dart';
 import 'package:untitled3/util/log_service.dart';
 
@@ -70,100 +71,7 @@ class MyHomePageState extends State<MyHomePage> {
     Get.put(LogService());
     super.initState();
     AirwallexManager.instance.airwallex;
-    // saveKeys(apiKey, clientId);
-    // environmentOptions = ['demo', 'staging', 'production'];
-    // assert(() {
-    //   environmentOptions = ['demo', 'staging'];
-    //   return true;
-    // }());
   }
-
-  // Future<void> _initialize() async {
-  //   try {
-  //     final values = await loadEnvironmentAndKeys();
-  //     environment = values.item1;
-  //     apiKey = values.item2;
-  //     clientId = values.item3;
-  //     Airwallex.initialize(environment: environment);
-  //     final apiClient = ApiClient(environment: environment, apiKey: apiKey, clientId: clientId);
-  //     setState(() {
-  //       paymentRepository = PaymentRepository(apiClient: apiClient);
-  //     });
-  //   } on PlatformException catch (e) {
-  //     _showDialog('Error', 'Unable to initialize: ${e.message}');
-  //   } on Exception catch (e) {
-  //     _showDialog('Error', e.toString());
-  //   }
-  // }
-
-  // Future<void> _handleSubmit<T>(Future<PaymentResult> Function() paymentFunction) async {
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-  //   try {
-  //     PaymentResult paymentResult = await paymentFunction();
-  //     _showDialog('Payment Result', paymentResult.status);
-  //   } catch (e) {
-  //     _showDialog('Failed to get response', e.toString());
-  //   } finally {
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-
-  // Future<BaseSession> _createSession({String? customerId}) async {
-  //   switch (selectedOption) {
-  //     case 'one off':
-  //       customerId = "cus_hkdmrlhs5h8k2wigq0b";
-  //       final paymentIntent = await paymentRepository.getPaymentIntentFromServer(false, customerId);
-  //       return SessionCreator.createOneOffSession(paymentIntent);
-  //     case 'recurring':
-  //       final customerId = await paymentRepository.getCustomerId();
-  //       this.customerId = customerId;
-  //       final clientSecret = await paymentRepository.getClientSecret(customerId);
-  //       return SessionCreator.createRecurringSession(clientSecret, customerId);
-  //     default: //'recurring and payment':
-  //       final customerId = await paymentRepository.getCustomerId();
-  //       this.customerId = customerId;
-  //       final paymentIntent = await paymentRepository.getPaymentIntentFromServer(false, customerId);
-  //       return SessionCreator.createRecurringWithIntentSession(paymentIntent, customerId);
-  //   }
-  // }
-
-  // Future<PaymentResult> _payWithConsent() async {
-  //   return airwallex.payWithConsent(await _createSession(customerId: customerId),
-  //       await paymentRepository.getPaymentConsents(customerId!).then((consents) => consents.first));
-  // }
-
-  // Future<PaymentResult> _payWithCardDetails() async {
-  //   if (saveCard && customerId == null) {
-  //     customerId = await paymentRepository.getCustomerId();
-  //   }
-  //   return airwallex.payWithCardDetails(
-  //       await _createSession(customerId: customerId), CardCreator.createDemoCard(environment), saveCard);
-  // }
-
-  // Future<Tuple3<Environment, String, String>> loadEnvironmentAndKeys() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final envString = prefs.getString('environment');
-  //   final apiKey = prefs.getString('apiKey');
-  //   final clientId = prefs.getString('clientId');
-  //   return Tuple3(Environment.values.firstWhere((e) => e.name == envString, orElse: () => Environment.demo),
-  //       apiKey ?? '', clientId ?? '');
-  // }
-
-  // void saveEnvironment(Environment environment) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   prefs.setString('environment', environment.name);
-  // }
-
-  // void saveKeys(String apiKey, String clientId) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   prefs.setString('apiKey', apiKey);
-  //   prefs.setString('clientId', clientId);
-  //   await _initialize();
-  // }
 
   void _showDialog(String title, String message) {
     showDialog(
@@ -285,7 +193,6 @@ class MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
                 const SizedBox(height: 20),
-
                 if (selectedOption == 'one off' && customerId != null) ...[
                   const SizedBox(height: 20),
                   ElevatedButton(
@@ -304,9 +211,21 @@ class MyHomePageState extends State<MyHomePage> {
                 ],
                 ElevatedButton(
                   onPressed: () async {
-                    Navigator.push(context, MaterialPageRoute(builder:(context)=>IntentListPage() ));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => IntentListPage()));
                   },
                   child: const Text('购买记录'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await AirwallexManager.instance.createARefund("int_hkdmlzvbnh8oj2burpf");
+                  },
+                  child: const Text('create a refund'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await AirwallexManager.instance.retrieveARefund("rfd_hkdmlzvbnh8ogtc413d_ooogeq");
+                  },
+                  child: const Text('retrieve a refund'),
                 ),
               ],
             ),

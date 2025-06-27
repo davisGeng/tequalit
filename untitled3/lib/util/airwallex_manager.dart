@@ -2,15 +2,12 @@ import 'package:airwallex_payment_flutter/airwallex.dart';
 import 'package:airwallex_payment_flutter/types/environment.dart';
 import 'package:airwallex_payment_flutter/types/payment_result.dart';
 import 'package:airwallex_payment_flutter/types/payment_session.dart';
-import 'package:airwallex_payment_flutter/types/shipping.dart';
-import 'package:airwallex_payment_flutter/types/google_pay_options.dart';
-import 'package:airwallex_payment_flutter/types/next_triggered_by.dart';
-import 'package:airwallex_payment_flutter/types/merchant_trigger_reason.dart';
-import 'package:airwallex_payment_flutter/types/apple_pay_options.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled3/api/ApiService.dart';
 import 'package:untitled3/api/api_client.dart';
 import 'package:untitled3/api/payment_repository.dart';
+import 'package:untitled3/types/payment_result_extend.dart';
 import 'package:untitled3/util/card_creator.dart';
 import 'package:untitled3/util/log_service.dart';
 import 'package:untitled3/util/session_creator.dart';
@@ -62,7 +59,15 @@ class AirwallexManager {
   }
 
   Future<Map<String, dynamic>> airwallexLogin() async {
-    Map<String, dynamic> map = await paymentRepository.airwallexLogin();
+    ApiService().init(
+      baseUrl: 'https://api-demo.airwallex.com',
+      headers: {
+        // 'Host': 'api-demo.airwallex.com',
+        "Accept": "application/json",
+        'Content-Type': 'application/json',
+      },
+    );
+    Map<String, dynamic> map = await ApiService().airwallexApiLogin(apiKey, clientId);
     return map;
   }
 
@@ -82,6 +87,8 @@ class AirwallexManager {
     if (_initialized == false) {
       await _initAirwallex();
     }
+    param ??= {"merchant_order_id": "CB202506271124111"};
+
     PaymentResult paymentResult;
     switch (paymentMethod) {
       case PaymentMethod.entire:
@@ -89,7 +96,6 @@ class AirwallexManager {
         break;
       case PaymentMethod.card:
         //todo test
-        param ??= {"merchant_order_id": "CB202506261924111"};
         paymentResult = await presentCardPaymentFlow(billingMode, customerId: customerId, param: param);
         break;
       case PaymentMethod.cardDetails:
@@ -105,29 +111,54 @@ class AirwallexManager {
   }
 
   //完整支付流程，包含多个支付方式
-  Future<PaymentResult> presentEntirePaymentFlow(BillingMode billingMode,
+  Future<PaymentResultExtend> presentEntirePaymentFlow(BillingMode billingMode,
       {String? customerId, Map<String, dynamic>? param}) async {
     BaseSession baseSession = await _createSession(billingMode, customerId: customerId, param: param);
     PaymentResult paymentResult = await airwallex.presentEntirePaymentFlow(baseSession);
-    return paymentResult;
+    String? paymentIntentId = "";
+    if (baseSession is OneOffSession) {
+      paymentIntentId = baseSession.paymentIntentId;
+    } else if (baseSession is RecurringWithIntentSession) {
+      paymentIntentId = baseSession.paymentIntentId;
+    }
+    PaymentResultExtend extend = PaymentResultExtend(paymentResult.status);
+    extend.paymentIntentId = paymentIntentId;
+    return extend;
   }
 
   //银行卡支付---单独拉起 银行卡支付流程，聚焦卡支付场景（输入卡号、有效期、CVV 等信息完成支付 ）。
-  Future<PaymentResult> presentCardPaymentFlow(BillingMode billingMode,
+  Future<PaymentResultExtend> presentCardPaymentFlow(BillingMode billingMode,
       {String? customerId, Map<String, dynamic>? param}) async {
     BaseSession baseSession = await _createSession(billingMode, customerId: customerId, param: param);
+
     PaymentResult paymentResult = await airwallex.presentCardPaymentFlow(baseSession);
-    return paymentResult;
+    String? paymentIntentId = "";
+    if (baseSession is OneOffSession) {
+      paymentIntentId = baseSession.paymentIntentId;
+    } else if (baseSession is RecurringWithIntentSession) {
+      paymentIntentId = baseSession.paymentIntentId;
+    }
+    PaymentResultExtend extend = PaymentResultExtend(paymentResult.status);
+    extend.paymentIntentId = paymentIntentId;
+    return extend;
   }
 
   //payWithCardDetails + save
   //用预填 / 手动输入的银行卡信息直接发起支付,
   //save 复选框：勾选后会尝试保存银行卡信息（需用户授权、符合支付平台合规要求 ），方便后续快捷支付
-  Future<PaymentResult> payWithCardDetails(BillingMode billingMode,
+  Future<PaymentResultExtend> payWithCardDetails(BillingMode billingMode,
       {String? customerId, Map<String, dynamic>? param}) async {
     BaseSession baseSession = await _createSession(billingMode, customerId: customerId, param: param);
     PaymentResult paymentResult = await airwallex.presentEntirePaymentFlow(baseSession);
-    return paymentResult;
+    String? paymentIntentId = "";
+    if (baseSession is OneOffSession) {
+      paymentIntentId = baseSession.paymentIntentId;
+    } else if (baseSession is RecurringWithIntentSession) {
+      paymentIntentId = baseSession.paymentIntentId;
+    }
+    PaymentResultExtend extend = PaymentResultExtend(paymentResult.status);
+    extend.paymentIntentId = paymentIntentId;
+    return extend;
   }
 
   Future<Map<String, dynamic>> getPaymentIntents({Map<String, dynamic>? param}) async {
@@ -138,7 +169,6 @@ class AirwallexManager {
   Future<BaseSession> _createSession(BillingMode mode, {Map<String, dynamic>? param, String? customerId}) async {
     switch (mode) {
       case BillingMode.oneOff:
-        // customerId = "cus_hkdmrlhs5h8k2wigq0b";
         final paymentIntent =
             await paymentRepository.getPaymentIntentFromServer(param: param, force3DS: false, customerId: customerId);
         return SessionCreator.createOneOffSession(paymentIntent);
@@ -185,6 +215,14 @@ class AirwallexManager {
 
   Future<Map<String, dynamic>> retrieveAPaymentIntent(String intentId) async {
     return await paymentRepository.retrieveAPaymentIntent(intentId);
+  }
+
+  Future<Map<String, dynamic>> createARefund(String intentId) async {
+    return await paymentRepository.createARefund(intentId);
+  }
+
+  Future<Map<String, dynamic>> retrieveARefund(String refundId) async {
+    return await paymentRepository.retrieveARefund(refundId);
   }
 
   destory() {

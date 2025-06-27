@@ -8,11 +8,6 @@ class PaymentRepository {
 
   PaymentRepository({required this.apiClient});
 
-  Future<Map<String, dynamic>> airwallexLogin() async {
-    Map<String, dynamic> map = await apiClient.airwallexLogin();
-    return map;
-  }
-
   Future<Map<String, dynamic>> getPaymentIntentFromServer(
       {Map<String, dynamic>? param, bool? force3DS, String? customerId}) async {
     final body = {
@@ -105,8 +100,18 @@ class PaymentRepository {
     return response;
   }
 
-  Future<Map<String, dynamic>> retrieveAPaymentIntent(String id) async {
-    final response = await apiClient.retrieveAPaymentIntent(id);
+  Future<Map<String, dynamic>> retrieveAPaymentIntent(String intentId) async {
+    final response = await apiClient.retrieveAPaymentIntent(intentId);
     return response;
+  }
+
+  Future<Map<String, dynamic>> createARefund(String intentId) async {
+    final response = await apiClient.createARefund(intentId);
+    return {};
+  }
+
+  Future<Map<String, dynamic>> retrieveARefund(String refundId) async {
+    final response = await apiClient.retrieveARefund(refundId);
+    return {};
   }
 }
