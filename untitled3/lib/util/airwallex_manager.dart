@@ -7,7 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled3/api/ApiService.dart';
 import 'package:untitled3/api/api_client.dart';
 import 'package:untitled3/api/payment_repository.dart';
+import 'package:untitled3/types/payment_intents_list_reponse.dart';
 import 'package:untitled3/types/payment_result_extend.dart';
+import 'package:untitled3/types/refund_reponse.dart';
+import 'package:untitled3/types/retrieve_payment_intent_reponse.dart';
 import 'package:untitled3/util/card_creator.dart';
 import 'package:untitled3/util/log_service.dart';
 import 'package:untitled3/util/session_creator.dart';
@@ -59,7 +62,7 @@ class AirwallexManager {
   }
 
   Future<Map<String, dynamic>> airwallexLogin() async {
-    ApiService().init(
+    await ApiService().init(
       baseUrl: 'https://api-demo.airwallex.com',
       headers: {
         // 'Host': 'api-demo.airwallex.com',
@@ -161,11 +164,6 @@ class AirwallexManager {
     return extend;
   }
 
-  Future<Map<String, dynamic>> getPaymentIntents({Map<String, dynamic>? param}) async {
-    Map<String, dynamic> map = await paymentRepository.getPaymentIntents(param: param);
-    return map;
-  }
-
   Future<BaseSession> _createSession(BillingMode mode, {Map<String, dynamic>? param, String? customerId}) async {
     switch (mode) {
       case BillingMode.oneOff:
@@ -213,16 +211,34 @@ class AirwallexManager {
     return airwallex.payWithCardDetails(await _createSession(mode), CardCreator.createDemoCard(environment), saveCard);
   }
 
-  Future<Map<String, dynamic>> retrieveAPaymentIntent(String intentId) async {
-    return await paymentRepository.retrieveAPaymentIntent(intentId);
+//获取支付记录
+  Future<PaymentIntentsListReponse> getPaymentIntents({Map<String, dynamic>? param}) async {
+    final response = await paymentRepository.apiClient.getPaymentIntents(param ?? {});
+    return PaymentIntentsListReponse.fromJson(response);
   }
 
-  Future<Map<String, dynamic>> createARefund(String intentId) async {
-    return await paymentRepository.createARefund(intentId);
+// 获取某一个 intent 的支付详情
+  Future<RetrievePaymentIntentReponse> retrieveAPaymentIntent(String intentId) async {
+    final response = await paymentRepository.apiClient.retrieveAPaymentIntent(intentId);
+    return RetrievePaymentIntentReponse.fromJson(response);
   }
 
-  Future<Map<String, dynamic>> retrieveARefund(String refundId) async {
-    return await paymentRepository.retrieveARefund(refundId);
+// 创建一个退款单
+  Future<RefundItem> createARefund(String intentId) async {
+    final response = await paymentRepository.apiClient.createARefund(intentId);
+    return RefundItem.fromJson(response);
+  }
+
+// 接受退款
+  Future<RefundItem> retrieveARefund(String refundId) async {
+    final response = await paymentRepository.apiClient.retrieveARefund(refundId);
+    return RefundItem.fromJson(response);
+  }
+
+// 获取退款记录
+  Future<RefundItem> getRetriesRefundList(int pageNum, int pageSize, String status) async {
+    final response = await paymentRepository.apiClient.getRetriesRefundList(pageNum, pageSize, status);
+    return RefundItem.fromJson(response);
   }
 
   destory() {

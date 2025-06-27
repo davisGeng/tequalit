@@ -20,23 +20,23 @@ class ApiService {
   late Dio _dio;
   String myToken = "";
   // 初始化 Dio 配置
-  void init({
+  Future init({
     required String baseUrl,
     Map<String, dynamic>? headers,
     int connectTimeout = 15000, // 连接超时时间（毫秒）
     int receiveTimeout = 15000, // 接收超时时间（毫秒）
-  }) {
-    if (_dio.options.baseUrl == "") {
-      // 基础配置
-      _dio = Dio(BaseOptions(
-        baseUrl: baseUrl,
-        headers: headers,
-        connectTimeout: Duration(milliseconds: connectTimeout),
-        receiveTimeout: Duration(milliseconds: receiveTimeout),
-        contentType: Headers.jsonContentType,
-        responseType: ResponseType.json,
-      ));
-    }
+  }) async {
+    // if (_dio.options.baseUrl == "") {
+    // 基础配置
+    _dio = Dio(BaseOptions(
+      baseUrl: baseUrl,
+      headers: headers,
+      connectTimeout: Duration(milliseconds: connectTimeout),
+      receiveTimeout: Duration(milliseconds: receiveTimeout),
+      contentType: Headers.jsonContentType,
+      responseType: ResponseType.json,
+    ));
+    // }
 
     // 添加拦截器
     _addInterceptors();
@@ -242,17 +242,11 @@ class ApiService {
     };
 
     try {
-      final response = await ApiService().post('/api/v1/authentication/login',
-          options: Options(headers: {
-            'Content-Type': 'application/json',
-            'x-client-id': clientId,
-            'x-api-key': apiKey,
-          }));
-
+      final response = await ApiService().post('/api/v1/authentication/login', options: Options(headers: headers));
       // 检查响应状态码
       if (response.statusCode == 200 || response.statusCode == 201) {
         // 请求成功，解析JSON响应
-        Map<String, dynamic> map = jsonDecode(response.data);
+        Map<String, dynamic> map = response.data;
         if (map.containsKey("token")) {
           myToken = map["token"];
           final prefs = await SharedPreferences.getInstance();

@@ -8,6 +8,7 @@ import 'package:airwallex_payment_flutter/types/payment_result.dart';
 import 'package:airwallex_payment_flutter/types/payment_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuple/tuple.dart';
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(),
+      builder: EasyLoading.init(),
     );
   }
 }
@@ -177,18 +179,18 @@ class MyHomePageState extends State<MyHomePage> {
                     ),
                     if (selectedOption == 'one off') ...[
                       const SizedBox(width: 5),
-                      SizedBox(
-                          height: 24.0,
-                          width: 24.0,
-                          child: Checkbox(
-                            value: saveCard,
-                            onChanged: (value) {
-                              setState(() {
-                                saveCard = value!;
-                              });
-                            },
-                          )),
-                      const Text('save'),
+                      // SizedBox(
+                      //     height: 24.0,
+                      //     width: 24.0,
+                      //     child: Checkbox(
+                      //       value: saveCard,
+                      //       onChanged: (value) {
+                      //         setState(() {
+                      //           saveCard = value!;
+                      //         });
+                      //       },
+                      //     )),
+                      // const Text('save'),
                     ]
                   ],
                 ),
@@ -211,13 +213,24 @@ class MyHomePageState extends State<MyHomePage> {
                 ],
                 ElevatedButton(
                   onPressed: () async {
+                    Map<String, dynamic> map = await AirwallexManager.instance.airwallexLogin();
+                    if (map.isNotEmpty) {
+                      EasyLoading.showToast("登录成功");
+                    } else {
+                      EasyLoading.showToast("登录失败");
+                    }
+                  },
+                  child: const Text('login'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => IntentListPage()));
                   },
                   child: const Text('购买记录'),
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    await AirwallexManager.instance.createARefund("int_hkdmlzvbnh8oj2burpf");
+                    await AirwallexManager.instance.createARefund("int_hkdmlzvbnh8osbcix9d");
                   },
                   child: const Text('create a refund'),
                 ),

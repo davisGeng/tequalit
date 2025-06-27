@@ -119,13 +119,6 @@ class ApiClient {
 
 //======================= api 方法，不走airwallex flutter sdk ===============使用 APIService 请求==================
   Future<Map<String, dynamic>> getPaymentIntents(Map<String, dynamic> params) async {
-    // DateTime parsedTime = DateTime.parse('2025-06-24 06:57:10');
-    // String from_created_at = parsedTime.toIso8601String();
-    // DateTime parsedTime2 = DateTime.parse('2025-06-27 06:57:10');
-    // String to_created_at = parsedTime2.toIso8601String();
-    // int page_num = 0;
-    // int page_size = 10;
-    // String merchant_order_id = "CB202506261924111";
     Map<String, dynamic> sendParam = {};
     const keys = ['from_created_at', 'merchant_order_id', 'page_num', 'page_size', 'to_created_at'];
     for (var key in keys) {
@@ -151,53 +144,103 @@ class ApiClient {
     }
   }
 
-  Future<void> createARefund(String intentId) async {
+  Future<Map<String, dynamic>> cancelAPaymentIntent(String intentId, String reason, {String? requestId}) async {
     Response response;
+    try {
+      response = await ApiService().post(
+        '/api/v1/pa/payment_intents/$intentId/cancel',
+        data: {"cancellation_reason": intentId, "reason": reason, "request_id": requestId ?? UniqueKey().toString()},
+      );
 
-    response = await ApiService().post(
-      '/api/v1/pa/refunds/create',
-      data: {
-        "payment_intent_id": intentId,
-        "reason": "Return goods",
-        "amount": 0.1,
-        "request_id": UniqueKey().toString()
-      },
-    );
-    String jss = response.data.toString();
-    print(jss);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
+      } else {
+        throw Exception('Failed to cancel a paymentintent : ${response.data}');
+      }
+    } catch (e) {
+      Log.d('Error occurred while cancel a paymentintent: $e');
+      rethrow;
+    }
   }
 
-  Future<void> retrieveARefund(String refundId) async {
+  Future<Map<String, dynamic>> createARefund(String intentId) async {
     Response response;
-    String url = '/api/v1/pa/refunds/$refundId';
-    response = await ApiService().get(
-      url,
-    );
-    String jss = response.data.toString();
-    print(jss);
+
+    try {
+      response = await ApiService().post(
+        '/api/v1/pa/refunds/create',
+        data: {
+          "payment_intent_id": intentId,
+          "reason": "Return goods",
+          "amount": 0.1,
+          "request_id": UniqueKey().toString()
+        },
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
+      } else {
+        throw Exception('Failed to create a refund : ${response.data}');
+      }
+    } catch (e) {
+      Log.d('Error occurred while create a refund: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> retrieveARefund(String refundId) async {
+    try {
+      Response response;
+      String url = '/api/v1/pa/refunds/$refundId';
+      response = await ApiService().get(
+        url,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
+      } else {
+        throw Exception('Failed to retrieve a refund : ${response.data}');
+      }
+    } catch (e) {
+      Log.d('Error occurred while retrieve a refund: $e');
+      rethrow;
+    }
   }
 
   Future<Map<String, dynamic>> retrieveAPaymentIntent(String intentId) async {
-    Response response;
-    intentId = "int_hkdmc7txzh8ogooogeq";
-    response = await ApiService().get(
-      '/api/v1/pa/payment_intents/$intentId',
-    );
-    String jss = response.data.toString();
-    print(jss);
-    return {};
+    try {
+      Response response;
+      intentId = "int_hkdmc7txzh8ogooogeq";
+      response = await ApiService().get(
+        '/api/v1/pa/payment_intents/$intentId',
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
+      } else {
+        throw Exception('Failed to retrieve a payment intent: ${response.data}');
+      }
+    } catch (e) {
+      Log.d('Error occurred while retrieve a payment intent: $e');
+      rethrow;
+    }
   }
 
-  Future<Map<String, dynamic>> getRetriesRefundList() async {
-    Map<String, dynamic> map = {"page_num": "0", "page_size": "10", "status": "SUCCEEDED"};
-    Response response;
+  Future<Map<String, dynamic>> getRetriesRefundList(int pageNum, int pageSize, String status) async {
+    try {
+      // SUCCEEDED
+      Map<String, dynamic> map = {"page_num": pageNum, "page_size": pageSize, "status": status};
+      Response response;
 
-    response = await ApiService().get(
-      '/api/v1/pa/refunds',
-      queryParameters: map,
-    );
-    String jss = response.data.toString();
-    print(jss);
-    return {};
+      response = await ApiService().get(
+        '/api/v1/pa/refunds',
+        queryParameters: map,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
+      } else {
+        throw Exception('Failed to get retries refund list: ${response.data}');
+      }
+    } catch (e) {
+      Log.d('Error occurred while get retrieve refund list: $e');
+      rethrow;
+    }
   }
 }

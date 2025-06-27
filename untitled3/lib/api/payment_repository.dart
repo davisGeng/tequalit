@@ -1,5 +1,6 @@
 import 'package:airwallex_payment_flutter/types/payment_consent.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:untitled3/types/refund_reponse.dart';
 
 import 'api_client.dart';
 
@@ -30,11 +31,11 @@ class PaymentRepository {
     if (param != null) {
       //merchant_order_id 商户网站的订单号
       const keys = ['amount', 'currency', 'email', 'merchant_order_id'];
-      keys.forEach((key) {
+      for (var key in keys) {
         if (param.containsKey(key)) {
           body[key] = param[key];
         }
-      });
+      }
     }
 
     if (force3DS == true) {
@@ -74,11 +75,11 @@ class PaymentRepository {
     if (param != null) {
       //merchant_customer_id 商户系统中的唯一客户ID
       const keys = ['first_name', 'last_name', 'email', 'phone_number', 'merchant_customer_id'];
-      keys.forEach((key) {
+      for (var key in keys) {
         if (param.containsKey(key)) {
           body[key] = param[key];
         }
-      });
+      }
     }
 
     final response = await apiClient.createCustomer(body);
@@ -93,25 +94,5 @@ class PaymentRepository {
   Future<List<PaymentConsent>> getPaymentConsents(String customerId) async {
     final response = await apiClient.getPaymentConsents(customerId);
     return response['items'].map<PaymentConsent>((item) => PaymentConsent.fromJson(item)).toList();
-  }
-
-  Future<Map<String, dynamic>> getPaymentIntents({Map<String, dynamic>? param}) async {
-    final response = await apiClient.getPaymentIntents(param ?? {});
-    return response;
-  }
-
-  Future<Map<String, dynamic>> retrieveAPaymentIntent(String intentId) async {
-    final response = await apiClient.retrieveAPaymentIntent(intentId);
-    return response;
-  }
-
-  Future<Map<String, dynamic>> createARefund(String intentId) async {
-    final response = await apiClient.createARefund(intentId);
-    return {};
-  }
-
-  Future<Map<String, dynamic>> retrieveARefund(String refundId) async {
-    final response = await apiClient.retrieveARefund(refundId);
-    return {};
   }
 }
