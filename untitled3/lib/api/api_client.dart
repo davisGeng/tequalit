@@ -208,7 +208,7 @@ class ApiClient {
   Future<Map<String, dynamic>> retrieveAPaymentIntent(String intentId) async {
     try {
       Response response;
-      intentId = "int_hkdmc7txzh8ogooogeq";
+      // intentId = "int_hkdmc7txzh8ogooogeq";
       response = await ApiService().get(
         '/api/v1/pa/payment_intents/$intentId',
       );

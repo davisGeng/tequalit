@@ -70,7 +70,7 @@ class AirwallexManager {
         'Content-Type': 'application/json',
       },
     );
-    Map<String, dynamic> map = await ApiService().airwallexApiLogin(apiKey, clientId);
+    Map<String, dynamic> map = await ApiService().airwallexApiLogin();
     return map;
   }
 

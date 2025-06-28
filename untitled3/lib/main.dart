@@ -73,6 +73,18 @@ class MyHomePageState extends State<MyHomePage> {
     Get.put(LogService());
     super.initState();
     AirwallexManager.instance.airwallex;
+    initAirwallService();
+  }
+
+  Future initAirwallService() async {
+    await ApiService().init(
+      baseUrl: 'https://api-demo.airwallex.com',
+      headers: {
+        // 'Host': 'api-demo.airwallex.com',
+        "Accept": "application/json",
+        'Content-Type': 'application/json',
+      },
+    );
   }
 
   void _showDialog(String title, String message) {

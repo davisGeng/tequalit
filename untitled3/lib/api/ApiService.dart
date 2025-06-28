@@ -16,7 +16,8 @@ class ApiService {
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
   ApiService._internal();
-
+  String apiKey = 'bc735183b7eeb714a1b679507d7b0016c74563077dc40e6a71d4aa4125925fabe86fb77b1eb8f1502568f633652cc77a';
+  String clientId = '_kxXlEflRVCG61JUqZpnDw';
   late Dio _dio;
   String myToken = "";
   // 初始化 Dio 配置
@@ -54,16 +55,29 @@ class ApiService {
     ));
 
     // 响应拦截器
-    _dio.interceptors.add(InterceptorsWrapper(
-      onResponse: (response, handler) {
-        // 统一处理响应
-        return handler.next(response);
-      },
-      onError: (DioException e, handler) {
-        // 统一处理错误
-        return handler.next(_handleError(e));
-      },
-    ));
+    _dio.interceptors.add(InterceptorsWrapper(onResponse: (response, handler) {
+      // 统一处理响应
+      return handler.next(response);
+    }, onError: (DioException e, handler) async {
+      final statusCode = e.response?.statusCode ?? 0;
+      if (statusCode == 401) {
+        try {
+          // 刷新 Token
+          await airwallexApiLogin();
+          final options = e.requestOptions;
+          final response;
+          if (options.method == "GET" || options.method == "get") {
+            response = await get(options.path, queryParameters: options.data);
+          } else {
+            response = await post(options.path, data: options.data);
+          }
+
+          return handler.resolve(response);
+        } catch (err) {
+          return handler.next(await _handleError(e));
+        }
+      }
+    }));
 
     // 添加日志拦截器（调试环境）
     if (const bool.fromEnvironment('dart.vm.product') == false) {
@@ -77,7 +91,7 @@ class ApiService {
   }
 
   // 错误处理
-  DioException _handleError(DioException error) {
+  Future<DioException> _handleError(DioException error) async {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
         return DioException(
@@ -98,6 +112,10 @@ class ApiService {
         // HTTP 状态码非 200-299
         final statusCode = error.response?.statusCode ?? 0;
         final message = _getErrorMessageByStatusCode(statusCode);
+        // if (statusCode == 401) {
+        //   Map<String, dynamic> result = await airwallexApiLogin(apiKey, clientId);
+        //   if (result.isNotEmpty) {}
+        // }
         return DioException(
           requestOptions: error.requestOptions,
           error: message,
@@ -234,7 +252,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> airwallexApiLogin(String apiKey, String clientId) async {
+  Future<Map<String, dynamic>> airwallexApiLogin() async {
     final headers = {
       'Content-Type': 'application/json',
       'x-client-id': clientId,
