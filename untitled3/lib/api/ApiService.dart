@@ -1,15 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
-import 'package:airwallex_payment_flutter/types/environment.dart';
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:untitled3/api/ApiService.dart';
-import 'dart:convert';
-
-import 'package:untitled3/util/log_service.dart';
-import 'package:dio/dio.dart';
 
 class ApiService {
   // 单例模式

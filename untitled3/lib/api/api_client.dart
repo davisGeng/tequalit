@@ -118,6 +118,25 @@ class ApiClient {
   }
 
 //======================= api 方法，不走airwallex flutter sdk ===============使用 APIService 请求==================
+
+  Future<Map<String, dynamic>> retrieveAPaymentIntent(String intentId) async {
+    try {
+      Response response;
+      // intentId = "int_hkdmc7txzh8ogooogeq";
+      response = await ApiService().get(
+        '/api/v1/pa/payment_intents/$intentId',
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
+      } else {
+        throw Exception('Failed to retrieve a payment intent: ${response.data}');
+      }
+    } catch (e) {
+      Log.d('Error occurred while retrieve a payment intent: $e');
+      rethrow;
+    }
+  }
+
   Future<Map<String, dynamic>> getPaymentIntents(Map<String, dynamic> params) async {
     Map<String, dynamic> sendParam = {};
     const keys = ['from_created_at', 'merchant_order_id', 'page_num', 'page_size', 'to_created_at'];
@@ -201,24 +220,6 @@ class ApiClient {
       }
     } catch (e) {
       Log.d('Error occurred while retrieve a refund: $e');
-      rethrow;
-    }
-  }
-
-  Future<Map<String, dynamic>> retrieveAPaymentIntent(String intentId) async {
-    try {
-      Response response;
-      // intentId = "int_hkdmc7txzh8ogooogeq";
-      response = await ApiService().get(
-        '/api/v1/pa/payment_intents/$intentId',
-      );
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return response.data;
-      } else {
-        throw Exception('Failed to retrieve a payment intent: ${response.data}');
-      }
-    } catch (e) {
-      Log.d('Error occurred while retrieve a payment intent: $e');
       rethrow;
     }
   }

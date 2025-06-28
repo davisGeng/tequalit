@@ -80,7 +80,7 @@ class MyHomePageState extends State<MyHomePage> {
     await ApiService().init(
       baseUrl: 'https://api-demo.airwallex.com',
       headers: {
-        // 'Host': 'api-demo.airwallex.com',
+        'Host': 'api-demo.airwallex.com',
         "Accept": "application/json",
         'Content-Type': 'application/json',
       },

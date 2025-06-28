@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:untitled3/types/retrieve_payment_intent_reponse.dart';
 import 'package:untitled3/util/airwallex_manager.dart';
+import 'package:untitled3/util/log_service.dart';
 
 class IntentListPage extends StatefulWidget {
   const IntentListPage({Key? key}) : super(key: key);
@@ -54,8 +56,8 @@ class _EasyRefreshListPageState extends State<IntentListPage> {
 
       map["from_created_at"] = from_created_at;
       map["merchant_order_id"] = merchant_order_id;
-      map["page_num"] = _page;
-      map["page_size"] = _pageSize;
+      map["page_num"] = "0";
+      map["page_size"] = "10";
       map["to_created_at"] = to_created_at;
       await AirwallexManager.instance.getPaymentIntents(param: map);
       // 模拟网络请求延迟
@@ -99,7 +101,9 @@ class _EasyRefreshListPageState extends State<IntentListPage> {
 
   // 上拉加载
   Future<void> _onLoad() async {
-    await AirwallexManager.instance.retrieveAPaymentIntent("int_hkdmk6msch8nn7a0hob");
+    RetrievePaymentIntentReponse reponse =
+        await AirwallexManager.instance.retrieveAPaymentIntent("int_hkdmlzvbnh8pl5ktuo4");
+    Log.d("dfdf");
     // await _loadData();
   }
 
