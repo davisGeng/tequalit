@@ -39,17 +39,3 @@ class UserApi {
     return res.toString() ?? "";
   }
 }
-
-/// 页面中调用示例
-void _login() async {
-  try {
-    var res = await UserApi.login(username: "test", password: "123456");
-    print("登录成功：$res");
-    // 存储Token到本地
-    // await SharedPreferences.getInstance().then((sp) => sp.setString("token", res["token"]));
-  } on ApiException catch (e) {
-    print("登录失败：${e.message}，错误码：${e.code}");
-    // 上层统一提示错误，比如Toast
-    // Toast.show(e.message);
-  }
-}
