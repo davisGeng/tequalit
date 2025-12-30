@@ -1,2 +1,0 @@
-/Users/genghongda/Documents/anjiafolder/geng/testpro/untitled3/android/app/.cxx/Debug/m2q166f2/arm64-v8a/CMakeFiles/edit_cache.dir
-/Users/genghongda/Documents/anjiafolder/geng/testpro/untitled3/android/app/.cxx/Debug/m2q166f2/arm64-v8a/CMakeFiles/rebuild_cache.dir
