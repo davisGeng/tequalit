@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../network/api_exception.dart';
 import '../network/dio_http_util.dart';
 
@@ -7,22 +9,34 @@ class UserApi {
   static Future<Map<String, dynamic>> login({
     required String username,
     required String password,
+    String countryCode = "US",
   }) async {
-    return await dioHttp.post(
-      "user/login",
+    Map<String, dynamic>? map = await dioHttp.post(
+      "/api/v1/users/login/",
       data: {
         "username": username,
         "password": password,
+        "country_code":countryCode
       },
     );
+    if(map !=null){
+      if(map.containsKey("token")){
+        final sp = await SharedPreferences.getInstance();
+        sp.setString('token', map['token']);
+      }
+    }
+    return map ?? {};
   }
 
   /// 获取用户信息（GET）
-  static Future<Map<String, dynamic>> getUserInfo({required String userId}) async {
-    return await dioHttp.get(
-      "user/info",
-      params: {"userId": userId},
+  static Future<String> getUserInfo() async {
+    List<dynamic>? res = await dioHttp.get(
+      "/api/v1/users/",
     );
+    if(res !=null){
+
+    }
+    return res.toString() ?? "";
   }
 }
 

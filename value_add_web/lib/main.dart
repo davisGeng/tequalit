@@ -154,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                   // );
 
                 },
-                child: const Text("跳转到React-TS项目C"),
+                child: const Text("跳转到page B"),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(300, 50),
                     backgroundColor: Colors.red,

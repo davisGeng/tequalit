@@ -1,12 +1,12 @@
 /// 网络请求常量配置
 class ApiConstants {
   /// 环境切换：true-开发环境 / false-生产环境
-  static const bool isDev = true;
+  static const bool isDev = false;
 
   /// 基础域名 - 开发环境
-  static const String devBaseUrl = "https://dev-api.xxx.com/";
+  static const String devBaseUrl = "https://dev.openapi.sightsyscloud.com/";
   /// 基础域名 - 生产环境
-  static const String prodBaseUrl = "https://api.xxx.com/";
+  static const String prodBaseUrl = "https://openapi-cn.sightsyscloud.com/";
 
   /// 获取当前环境BaseUrl
   static String get baseUrl => isDev ? devBaseUrl : prodBaseUrl;
@@ -18,9 +18,8 @@ class ApiConstants {
 
   /// 公共请求头
   static Map<String, dynamic> get baseHeaders => {
-    "Content-Type": "application/json;charset=UTF-8",
+    "Content-Type": "application/json",
     "Accept": "application/json",
-    "platform": "flutter",
-    "version": "1.0.0",
+
   };
 }

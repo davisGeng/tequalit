@@ -29,7 +29,7 @@ class ValueAddApi {
 /// 页面中调用示例
 void _login() async {
   try {
-    var res = await ValueAddApi.login(username: "test", password: "123456");
+    var res = await ValueAddApi.login(username: "17665326531", password: "q123456");
     print("登录成功：$res");
     // 存储Token到本地
     // await SharedPreferences.getInstance().then((sp) => sp.setString("token", res["token"]));

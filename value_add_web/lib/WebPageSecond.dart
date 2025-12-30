@@ -6,7 +6,8 @@ import 'dart:js' as js;
 import 'package:get/get_core/src/get_main.dart';
 import 'dart:html' as html;
 
-import 'package:url_launcher/url_launcher.dart'; // 监听message事件需要用到html包
+import 'package:url_launcher/url_launcher.dart';
+import 'package:value_add_web/api/user_api.dart'; // 监听message事件需要用到html包
 
 
 class WebPageSecond extends StatefulWidget {
@@ -109,21 +110,32 @@ class _webtoreatcts extends State<WebPageSecond> {
                 ),
               ),
             ),
-            // ElevatedButton(
-            //     onPressed: () async{
-            //       // Get.to(
-            //       //       () => LocalHtmlWebViewPage(),
-            //       // );
-            //       openWebViewPageWithLocalHtml(context, "pay", "local_html_demo.html");
-            //
-            //     },
-            //     child: const Text("load html"),
-            //     style: ElevatedButton.styleFrom(
-            //       minimumSize: const Size(300, 50),
-            //       backgroundColor: Colors.red,
-            //       foregroundColor: Colors.white,
-            //     )
-            // ),
+            ElevatedButton(
+                onPressed: () async{
+                final tokenMap = await  UserApi.login(username: "+8617665326531", password: "q123456",countryCode: "CN");
+                debugPrint("登录成功 token：${tokenMap}");
+
+                },
+                child: const Text("login"),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(300, 50),
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                )
+            ),
+            ElevatedButton(
+                onPressed: () async{
+                  final info = await  UserApi.getUserInfo();
+                  debugPrint("info ：${info}");
+
+                },
+                child: const Text("get userInfo"),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(300, 50),
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                )
+            ),
           ],
         ),
       ),
