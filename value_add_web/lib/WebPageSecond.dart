@@ -7,7 +7,9 @@ import 'package:get/get_core/src/get_main.dart';
 import 'dart:html' as html;
 
 import 'package:url_launcher/url_launcher.dart';
-import 'package:value_add_web/api/user_api.dart'; // 监听message事件需要用到html包
+import 'package:value_add_web/api/user_api.dart';
+
+import 'assets/assets.gen.dart';
 
 
 class WebPageSecond extends StatefulWidget {
@@ -129,13 +131,16 @@ class _webtoreatcts extends State<WebPageSecond> {
                   debugPrint("info ：${info}");
 
                 },
-                child: const Text("get userInfo"),
+                child:
+                const Text("get userInfo"),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(300, 50),
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 )
             ),
+            Assets.images.iconServiceData4gBanner.image(width: double.infinity,height: 200,fit: BoxFit.fill)
+
           ],
         ),
       ),

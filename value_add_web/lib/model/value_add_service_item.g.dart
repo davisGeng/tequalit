@@ -17,12 +17,12 @@ ValueAddServiceItem _$ValueAddServiceItemFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$ValueAddServiceItemToJson(
-  ValueAddServiceItem instance,
-) => <String, dynamic>{
-  'pkid': instance.pkid,
-  'createTime': instance.createTime,
-  'imageUrl': instance.imageUrl,
-  'title': instance.title,
-  'description': instance.description,
-  'isAvailable': instance.isAvailable,
-};
+        ValueAddServiceItem instance) =>
+    <String, dynamic>{
+      'pkid': instance.pkid,
+      'createTime': instance.createTime,
+      'imageUrl': instance.imageUrl,
+      'title': instance.title,
+      'description': instance.description,
+      'isAvailable': instance.isAvailable,
+    };

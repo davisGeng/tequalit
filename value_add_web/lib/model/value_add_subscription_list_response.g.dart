@@ -7,32 +7,30 @@ part of 'value_add_subscription_list_response.dart';
 // **************************************************************************
 
 ValueAddSubscriptionListResponse _$ValueAddSubscriptionListResponseFromJson(
-  Map<String, dynamic> json,
-) => ValueAddSubscriptionListResponse(
-  items:
-      (json['items'] as List<dynamic>?)
+        Map<String, dynamic> json) =>
+    ValueAddSubscriptionListResponse(
+      items: (json['items'] as List<dynamic>?)
           ?.map((e) => DeviceSubscription.fromJson(e as Map<String, dynamic>))
           .toList(),
-  pagination:
-      json['pagination'] == null
+      pagination: json['pagination'] == null
           ? null
           : Pagination.fromJson(json['pagination'] as Map<String, dynamic>),
-);
+    );
 
 Map<String, dynamic> _$ValueAddSubscriptionListResponseToJson(
-  ValueAddSubscriptionListResponse instance,
-) => <String, dynamic>{
-  'items': instance.items,
-  'pagination': instance.pagination,
-};
+        ValueAddSubscriptionListResponse instance) =>
+    <String, dynamic>{
+      'items': instance.items,
+      'pagination': instance.pagination,
+    };
 
 Pagination _$PaginationFromJson(Map<String, dynamic> json) => Pagination(
-  total: (json['total'] as num?)?.toInt(),
-  limit: (json['limit'] as num?)?.toInt(),
-  offset: (json['offset'] as num?)?.toInt(),
-  hasNext: json['has_next'] as bool?,
-  hasPrevious: json['has_previous'] as bool?,
-);
+      total: (json['total'] as num?)?.toInt(),
+      limit: (json['limit'] as num?)?.toInt(),
+      offset: (json['offset'] as num?)?.toInt(),
+      hasNext: json['has_next'] as bool?,
+      hasPrevious: json['has_previous'] as bool?,
+    );
 
 Map<String, dynamic> _$PaginationToJson(Pagination instance) =>
     <String, dynamic>{
@@ -48,16 +46,13 @@ DeviceSubscription _$DeviceSubscriptionFromJson(Map<String, dynamic> json) =>
       deviceId: json['device_id'] as String?,
       deviceName: json['device_name'] as String?,
       deviceThirdPartId: json['device_third_part_id'] as String?,
-      subscriptions:
-          (json['subscriptions'] as List<dynamic>?)
-              ?.map((e) => Subscriptions.fromJson(e as Map<String, dynamic>))
-              .toList(),
-      subscriptionSummary:
-          json['subscription_summary'] == null
-              ? null
-              : SubscriptionSummary.fromJson(
-                json['subscription_summary'] as Map<String, dynamic>,
-              ),
+      subscriptions: (json['subscriptions'] as List<dynamic>?)
+          ?.map((e) => Subscriptions.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      subscriptionSummary: json['subscription_summary'] == null
+          ? null
+          : SubscriptionSummary.fromJson(
+              json['subscription_summary'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$DeviceSubscriptionToJson(DeviceSubscription instance) =>
@@ -80,23 +75,22 @@ SubscriptionSummary _$SubscriptionSummaryFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$SubscriptionSummaryToJson(
-  SubscriptionSummary instance,
-) => <String, dynamic>{
-  'total_count': instance.totalCount,
-  'active_count': instance.activeCount,
-  'canceled_count': instance.canceledCount,
-  'expired_count': instance.expiredCount,
-  'suspended_count': instance.suspendedCount,
-  'trial_count': instance.trialCount,
-};
+        SubscriptionSummary instance) =>
+    <String, dynamic>{
+      'total_count': instance.totalCount,
+      'active_count': instance.activeCount,
+      'canceled_count': instance.canceledCount,
+      'expired_count': instance.expiredCount,
+      'suspended_count': instance.suspendedCount,
+      'trial_count': instance.trialCount,
+    };
 
 Subscriptions _$SubscriptionsFromJson(Map<String, dynamic> json) =>
     Subscriptions(
       id: json['id'] as String?,
-      plan:
-          json['plan'] == null
-              ? null
-              : SubscriptionPlan.fromJson(json['plan'] as Map<String, dynamic>),
+      plan: json['plan'] == null
+          ? null
+          : SubscriptionPlan.fromJson(json['plan'] as Map<String, dynamic>),
       status: json['status'] as String?,
       currentPeriodStart: json['current_period_start'] as String?,
       currentPeriodEnd: json['current_period_end'] as String?,
@@ -128,10 +122,9 @@ SubscriptionPlan _$SubscriptionPlanFromJson(Map<String, dynamic> json) =>
       attributes: (json['attributes'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as Object),
       ),
-      prices:
-          (json['prices'] as List<dynamic>?)
-              ?.map((e) => Prices.fromJson(e as Map<String, dynamic>))
-              .toList(),
+      prices: (json['prices'] as List<dynamic>?)
+          ?.map((e) => Prices.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$SubscriptionPlanToJson(SubscriptionPlan instance) =>
@@ -145,17 +138,17 @@ Map<String, dynamic> _$SubscriptionPlanToJson(SubscriptionPlan instance) =>
     };
 
 Prices _$PricesFromJson(Map<String, dynamic> json) => Prices(
-  priceId: json['price_id'] as String?,
-  currency: json['currency'] as String?,
-  currencySymbol: json['currency_symbol'] as String?,
-  unitAmount: (json['unit_amount'] as num?)?.toInt(),
-  interval: json['interval'] as String?,
-);
+      priceId: json['price_id'] as String?,
+      currency: json['currency'] as String?,
+      currencySymbol: json['currency_symbol'] as String?,
+      unitAmount: (json['unit_amount'] as num?)?.toInt(),
+      interval: json['interval'] as String?,
+    );
 
 Map<String, dynamic> _$PricesToJson(Prices instance) => <String, dynamic>{
-  'price_id': instance.priceId,
-  'currency': instance.currency,
-  'currency_symbol': instance.currencySymbol,
-  'unit_amount': instance.unitAmount,
-  'interval': instance.interval,
-};
+      'price_id': instance.priceId,
+      'currency': instance.currency,
+      'currency_symbol': instance.currencySymbol,
+      'unit_amount': instance.unitAmount,
+      'interval': instance.interval,
+    };
