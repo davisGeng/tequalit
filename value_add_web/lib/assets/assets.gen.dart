@@ -12,12 +12,88 @@ import 'package:flutter/widgets.dart';
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
+  /// File path: assets/images/icon_service_4g.png
+  AssetGenImage get iconService4g =>
+      const AssetGenImage('assets/images/icon_service_4g.png');
+
+  /// File path: assets/images/icon_service_ai.png
+  AssetGenImage get iconServiceAi =>
+      const AssetGenImage('assets/images/icon_service_ai.png');
+
+  /// File path: assets/images/icon_service_cloud.png
+  AssetGenImage get iconServiceCloud =>
+      const AssetGenImage('assets/images/icon_service_cloud.png');
+
+  /// File path: assets/images/icon_service_cloud_banner.png
+  AssetGenImage get iconServiceCloudBanner =>
+      const AssetGenImage('assets/images/icon_service_cloud_banner.png');
+
+  /// File path: assets/images/icon_service_cloud_box_selected.png
+  AssetGenImage get iconServiceCloudBoxSelected =>
+      const AssetGenImage('assets/images/icon_service_cloud_box_selected.png');
+
+  /// File path: assets/images/icon_service_cloud_effect.png
+  AssetGenImage get iconServiceCloudEffect =>
+      const AssetGenImage('assets/images/icon_service_cloud_effect.png');
+
+  /// File path: assets/images/icon_service_credit_card.png
+  AssetGenImage get iconServiceCreditCard =>
+      const AssetGenImage('assets/images/icon_service_credit_card.png');
+
   /// File path: assets/images/icon_service_data4g_banner.png
   AssetGenImage get iconServiceData4gBanner =>
       const AssetGenImage('assets/images/icon_service_data4g_banner.png');
 
+  /// File path: assets/images/icon_service_effect.png
+  AssetGenImage get iconServiceEffect =>
+      const AssetGenImage('assets/images/icon_service_effect.png');
+
+  /// File path: assets/images/icon_service_paypal.png
+  AssetGenImage get iconServicePaypal =>
+      const AssetGenImage('assets/images/icon_service_paypal.png');
+
+  /// File path: assets/images/icon_service_right_arrow.png
+  AssetGenImage get iconServiceRightArrow =>
+      const AssetGenImage('assets/images/icon_service_right_arrow.png');
+
+  /// File path: assets/images/img_default.png
+  AssetGenImage get imgDefault =>
+      const AssetGenImage('assets/images/img_default.png');
+
+  /// File path: assets/images/img_device_connect_empty.png
+  AssetGenImage get imgDeviceConnectEmpty =>
+      const AssetGenImage('assets/images/img_device_connect_empty.png');
+
+  /// File path: assets/images/img_device_connect_error.png
+  AssetGenImage get imgDeviceConnectError =>
+      const AssetGenImage('assets/images/img_device_connect_error.png');
+
+  /// File path: assets/images/img_no_device.png
+  AssetGenImage get imgNoDevice =>
+      const AssetGenImage('assets/images/img_no_device.png');
+
+  /// File path: assets/images/success.png
+  AssetGenImage get success => const AssetGenImage('assets/images/success.png');
+
   /// List of all assets
-  List<AssetGenImage> get values => [iconServiceData4gBanner];
+  List<AssetGenImage> get values => [
+        iconService4g,
+        iconServiceAi,
+        iconServiceCloud,
+        iconServiceCloudBanner,
+        iconServiceCloudBoxSelected,
+        iconServiceCloudEffect,
+        iconServiceCreditCard,
+        iconServiceData4gBanner,
+        iconServiceEffect,
+        iconServicePaypal,
+        iconServiceRightArrow,
+        imgDefault,
+        imgDeviceConnectEmpty,
+        imgDeviceConnectError,
+        imgNoDevice,
+        success
+      ];
 }
 
 class Assets {
