@@ -1,13 +1,23 @@
 import 'dart:convert';
 import 'dart:js' as js;
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
+import 'package:value_add_web/common/utils/js_utils.dart';
+import 'package:value_add_web/routes/routes.dart';
+import 'package:value_add_web/services/log_service.dart';
+import 'package:value_add_web/services/storage_service.dart';
 
 import 'WebPageSecond.dart';
 import 'WebToReatcTs.dart';
+import 'assets/app_theme.dart';
+import 'common/utils/app_translations.dart';
+import 'common/utils/language_manager.dart';
 
-void main() {
-
+void main() async{
+  await AppTask.init();
+  JsUtils.instance.init();
   runApp(const MyApp());
 }
 
@@ -17,22 +27,47 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Flutter Web-B',
-      theme: ThemeData(primarySwatch: Colors.green),
-      // home: const HomePage(),
-      debugShowCheckedModeBanner: false,
-      initialRoute: "/", // 首页路由
-      // ✅ 原生路由注册，key对应#后的路径
-      routes: {
-        "/": (context) => const HomePage(), // 首页 → /#/
-        "/second": (context) => const WebPageSecond(), // 第二个页面 → /#/second
-        "/third": (context) => const Webtoreatcts(), // 第三个页面 → /#/third
-
-      },
+      title: 'SightSys',
+      theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.white, primary: AppTheme.current.colors.main),
+          useMaterial3: true),
+      getPages: [
+        ...Routes.routes,
+      ],
+      initialRoute: Routes.initial,
+      translations: AppTranslations(),
+      locale:LanguageManager.instance.newLocale ?? LanguageManager.instance.getDefaultLocale(),
+      localizationsDelegates:  [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: LanguageManager.instance.getSupportedLocales(),
+      builder: EasyLoading.init(),
     );
+    // return GetMaterialApp(
+    //   title: 'Flutter Web-B',
+    //   theme: ThemeData(primarySwatch: Colors.green),
+    //   // home: const HomePage(),
+    //   debugShowCheckedModeBanner: false,
+    //   initialRoute: "/", // 首页路由
+    //   // ✅ 原生路由注册，key对应#后的路径
+    //   routes: {
+    //     "/": (context) => const HomePage(), // 首页 → /#/
+    //     "/second": (context) => const WebPageSecond(), // 第二个页面 → /#/second
+    //     "/third": (context) => const Webtoreatcts(), // 第三个页面 → /#/third
+    //
+    //   },
+    // );
   }
 }
-
+final class AppTask {
+  static Future<void> init() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    // await Get.putAsync(() => LogService().init());
+    await Get.putAsync(() => StorageService.instance.init());
+  }
+}
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 

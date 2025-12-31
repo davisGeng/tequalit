@@ -12,6 +12,8 @@ import 'package:value_add_web/api/user_api.dart';
 import 'assets/assets.gen.dart';
 
 
+
+
 class WebPageSecond extends StatefulWidget {
   const WebPageSecond({super.key});
   @override
@@ -131,13 +133,13 @@ class _webtoreatcts extends State<WebPageSecond> {
                   debugPrint("info ：${info}");
 
                 },
-                child:
-                const Text("get userInfo"),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(300, 50),
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
-                )
+                ),
+                child:
+                 Text("save_to_phone_album_label".tr)
             ),
             Assets.images.iconServiceData4gBanner.image(width: double.infinity,height: 200,fit: BoxFit.fill)
 

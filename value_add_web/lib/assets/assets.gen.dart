@@ -12,6 +12,30 @@ import 'package:flutter/widgets.dart';
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
+  /// File path: assets/images/icon_basic_button_arrow_blue.png
+  AssetGenImage get iconBasicButtonArrowBlue =>
+      const AssetGenImage('assets/images/icon_basic_button_arrow_blue.png');
+
+  /// File path: assets/images/icon_basic_button_arrow_disabled.png
+  AssetGenImage get iconBasicButtonArrowDisabled =>
+      const AssetGenImage('assets/images/icon_basic_button_arrow_disabled.png');
+
+  /// File path: assets/images/icon_basic_button_arrow_red.png
+  AssetGenImage get iconBasicButtonArrowRed =>
+      const AssetGenImage('assets/images/icon_basic_button_arrow_red.png');
+
+  /// File path: assets/images/icon_check_box_selected.png
+  AssetGenImage get iconCheckBoxSelected =>
+      const AssetGenImage('assets/images/icon_check_box_selected.png');
+
+  /// File path: assets/images/icon_check_box_unselected.png
+  AssetGenImage get iconCheckBoxUnselected =>
+      const AssetGenImage('assets/images/icon_check_box_unselected.png');
+
+  /// File path: assets/images/icon_checkbox_single_selected.png
+  AssetGenImage get iconCheckboxSingleSelected =>
+      const AssetGenImage('assets/images/icon_checkbox_single_selected.png');
+
   /// File path: assets/images/icon_service_4g.png
   AssetGenImage get iconService4g =>
       const AssetGenImage('assets/images/icon_service_4g.png');
@@ -77,6 +101,12 @@ class $AssetsImagesGen {
 
   /// List of all assets
   List<AssetGenImage> get values => [
+        iconBasicButtonArrowBlue,
+        iconBasicButtonArrowDisabled,
+        iconBasicButtonArrowRed,
+        iconCheckBoxSelected,
+        iconCheckBoxUnselected,
+        iconCheckboxSingleSelected,
         iconService4g,
         iconServiceAi,
         iconServiceCloud,
