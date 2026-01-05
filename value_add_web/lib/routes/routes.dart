@@ -1,11 +1,13 @@
 
 
-import 'package:value_add_web/routes/value_add_routes.dart';
+
+import '../main.dart' as ValueAddPaths;
+import '../value_add/value_add_routes.dart';
 
 class Routes {
   Routes._();
 
-  static const initial = ValueAddPaths.main;
+  static const String initial = "";
 
   static final routes = [
     // 增值服务

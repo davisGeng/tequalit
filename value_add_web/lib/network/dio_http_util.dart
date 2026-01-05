@@ -9,8 +9,8 @@ import 'api_exception.dart';
 /// Dio 网络请求工具类（单例模式 | Flutter Web/Android/iOS 全平台兼容）
 class DioHttpUtil {
   /// 单例实例（全局唯一）
-  static final DioHttpUtil _instance = DioHttpUtil._internal();
-  factory DioHttpUtil() => _instance;
+  static final DioHttpUtil instance = DioHttpUtil._internal();
+  factory DioHttpUtil() => instance;
 
   /// Dio 核心实例
   late Dio dio;
@@ -34,22 +34,22 @@ class DioHttpUtil {
   }
 
   /// ✅ 核心适配：根据平台差异化配置 HttpClientAdapter
-  void _platformAdapterConfig() {
-    if (!kIsWeb) {
-      // 📌 仅原生平台（Android/iOS）执行：配置IO适配器 + 忽略HTTPS证书校验
-      dio.httpClientAdapter = IOHttpClientAdapter(
-        createHttpClient: () {
-          final client = HttpClient();
-          client.badCertificateCallback = (cert, host, port) => true;
-          return client;
-        },
-      );
-    } else {
-      // 📌 Flutter Web环境：使用默认的 BrowserHttpClientAdapter
-      // Web环境无需手动配置适配器，Dio会自动适配浏览器的 Fetch/XMLHttpRequest
-      // Web端证书校验由浏览器自动处理，无需手动忽略
-    }
-  }
+  // void _platformAdapterConfig() {
+  //   if (!kIsWeb) {
+  //     // 📌 仅原生平台（Android/iOS）执行：配置IO适配器 + 忽略HTTPS证书校验
+  //     dio.httpClientAdapter = IOHttpClientAdapter(
+  //       createHttpClient: () {
+  //         final client = HttpClient();
+  //         client.badCertificateCallback = (cert, host, port) => true;
+  //         return client;
+  //       },
+  //     );
+  //   } else {
+  //     // 📌 Flutter Web环境：使用默认的 BrowserHttpClientAdapter
+  //     // Web环境无需手动配置适配器，Dio会自动适配浏览器的 Fetch/XMLHttpRequest
+  //     // Web端证书校验由浏览器自动处理，无需手动忽略
+  //   }
+  // }
 
   /// 添加全局拦截器（全平台通用，无修改）
   void _addInterceptors() {

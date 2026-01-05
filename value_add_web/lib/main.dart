@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:value_add_web/common/utils/js_utils.dart';
 import 'package:value_add_web/routes/routes.dart';
 import 'package:value_add_web/services/log_service.dart';
@@ -11,6 +12,7 @@ import 'package:value_add_web/services/storage_service.dart';
 
 import 'WebPageSecond.dart';
 import 'WebToReatcTs.dart';
+import 'api/value_add_api.dart';
 import 'assets/app_theme.dart';
 import 'common/utils/app_translations.dart';
 import 'common/utils/language_manager.dart';
@@ -18,6 +20,13 @@ import 'common/utils/language_manager.dart';
 void main() async{
   await AppTask.init();
   JsUtils.instance.init();
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // ✅ 1. 初始化SharedPreferences（Dio拦截器中获取Token需要）
+  await SharedPreferences.getInstance();
+
+  // ✅ 2. 初始化全局API（融合Dio + VasApi，仅需调用1次）
+  ValueAddApi.instance.init("zh");
   runApp(const MyApp());
 }
 

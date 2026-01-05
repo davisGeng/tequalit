@@ -1,14 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'check_device_available_byplan_response.dart';
+part of 'check_device_available_by_plan_response.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-CheckDeviceAvailableByplanResponse _$CheckDeviceAvailableByplanResponseFromJson(
+CheckDeviceAvailableByPlanResponse _$CheckDeviceAvailableByPlanResponseFromJson(
         Map<String, dynamic> json) =>
-    CheckDeviceAvailableByplanResponse(
+    CheckDeviceAvailableByPlanResponse(
       results: (json['results'] as List<dynamic>?)
           ?.map(
               (e) => DeviceAvailableResults.fromJson(e as Map<String, dynamic>))
@@ -18,8 +18,8 @@ CheckDeviceAvailableByplanResponse _$CheckDeviceAvailableByplanResponseFromJson(
           : Summary.fromJson(json['summary'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$CheckDeviceAvailableByplanResponseToJson(
-        CheckDeviceAvailableByplanResponse instance) =>
+Map<String, dynamic> _$CheckDeviceAvailableByPlanResponseToJson(
+        CheckDeviceAvailableByPlanResponse instance) =>
     <String, dynamic>{
       'results': instance.results,
       'summary': instance.summary,

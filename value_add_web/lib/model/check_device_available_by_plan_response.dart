@@ -1,21 +1,21 @@
 import 'package:json_annotation/json_annotation.dart';
-part 'check_device_available_byplan_response.g.dart';
+part 'check_device_available_by_plan_response.g.dart';
 
 @JsonSerializable()
-class CheckDeviceAvailableByplanResponse {
+class CheckDeviceAvailableByPlanResponse {
   @JsonKey(name: 'results')
   List<DeviceAvailableResults>? results;
   @JsonKey(name: 'summary')
   Summary? summary;
 
-  CheckDeviceAvailableByplanResponse({this.results, this.summary});
+  CheckDeviceAvailableByPlanResponse({this.results, this.summary});
 
-  factory CheckDeviceAvailableByplanResponse.fromJson(
-    Map<String, dynamic> json,
-  ) => _$CheckDeviceAvailableByplanResponseFromJson(json);
+  factory CheckDeviceAvailableByPlanResponse.fromJson(
+      Map<String, dynamic> json,
+      ) => _$CheckDeviceAvailableByPlanResponseFromJson(json);
 
   Map<String, dynamic> toJson() =>
-      _$CheckDeviceAvailableByplanResponseToJson(this);
+      _$CheckDeviceAvailableByPlanResponseToJson(this);
 }
 
 @JsonSerializable()

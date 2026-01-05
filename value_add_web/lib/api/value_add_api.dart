@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../model/check_device_available_byplan_response.dart';
+import '../model/check_device_available_by_plan_response.dart';
 import '../model/value_add_check_device_service_response.dart';
 import '../model/value_add_create_order_response.dart';
 import '../model/value_add_order_list_response.dart';
@@ -12,7 +12,15 @@ import '../network/dio_http_util.dart';
 
 /// 示例：增值服务模块接口
 class ValueAddApi {
+  static final ValueAddApi instance = ValueAddApi._internal();
+  factory ValueAddApi() => instance;
+  ValueAddApi._internal();
+
   String _language = "zh";
+  void init(String language) {
+    // 核心：将DioHttpUtil的全局Dio传入VasApi，完成融合
+    _language = language;
+  }
   Future<ValueAddProductResponse?> getProductList({
     String productType = "",
     int pageSize = 20,
@@ -28,20 +36,11 @@ class ValueAddApi {
         "limit": pageSize,
         "offset": (page - 1)*pageSize,
         "supplier": supplier,
-        "filterCountry": filterCountry,
+        // "filterCountry": filterCountry,
         "coverage_mode": coverageMode,
         "region_type": regionType,
         // "language": _language,
       };
-
-    //   @Query("type") String productType,
-    // @Query("limit") int pageSize,
-    // @Query("offset") int offset,
-    // @Query("supplier") String supplier,
-    // @Query("mcc") String mcc,
-    // @Query("coverage_mode") String coverageMode,
-    // @Query("region_type") String regionType
-
       String response = await dioHttp.get("/api/v1/vas/products/",params: args);
       if (response.isEmpty) {
         return null;
@@ -290,24 +289,24 @@ class ValueAddApi {
     }
   }
 
-  Future<CheckDeviceAvailableByplanResponse?> getValueAddAvailableDeviceByPlan(
-      String planId,
-      List<Map<String, dynamic>> deviceMaps,
-      ) async {
-    try {
-      // List<Map<String, dynamic>> deviceValue = devices.map((device) => device.toJson()).toList();
-
-      final args = {'plan_id': planId, 'devices': deviceMaps};
-      String? response = await dioHttp.get("/api/v1/vas/products/batch-check-compatibility/",params: args);
-      if (response == null) {
-        return null;
-      }
-      CheckDeviceAvailableByplanResponse model =
-      CheckDeviceAvailableByplanResponse.fromJson(json.decode(response));
-
-      return model;
-    } catch (e) {
-      throw Exception("Failed to getValueAddCheckDeviceAvailableByPlan : $e");
-    }
-  }
+  // Future<CheckDeviceAvailableByplanResponse?> getValueAddAvailableDeviceByPlan(
+  //     String planId,
+  //     List<Map<String, dynamic>> deviceMaps,
+  //     ) async {
+  //   try {
+  //     // List<Map<String, dynamic>> deviceValue = devices.map((device) => device.toJson()).toList();
+  //
+  //     final args = {'plan_id': planId, 'devices': deviceMaps};
+  //     String? response = await dioHttp.get("/api/v1/vas/products/batch-check-compatibility/",params: args);
+  //     if (response == null) {
+  //       return null;
+  //     }
+  //     CheckDeviceAvailableByplanResponse model =
+  //     CheckDeviceAvailableByplanResponse.fromJson(json.decode(response));
+  //
+  //     return model;
+  //   } catch (e) {
+  //     throw Exception("Failed to getValueAddCheckDeviceAvailableByPlan : $e");
+  //   }
+  // }
 }
