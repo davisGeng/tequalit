@@ -3,6 +3,10 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:network_info_plus/network_info_plus.dart';
+
+import 'log_service.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 abstract mixin class AppServiceObserver {
   /// App恢复前台
@@ -33,13 +37,13 @@ final class AppService extends GetxService with WidgetsBindingObserver {
   // 无通知权限时展示
   final RxBool showNotificationWithoutPermission = true.obs;
 
-  static final checkedPermissions = [Permission.location, Permission.camera, Permission.photos];
+  // static final checkedPermissions = [Permission.location, Permission.camera, Permission.photos];
 
-  static final bluetoothPermissions = <Permission>[Permission.bluetooth];
+  // static final bluetoothPermissions = <Permission>[Permission.bluetooth];
 
   /// 获取权限状态
-  Map<Permission, PermissionStatus> get permissionStatus => _permissionStatus;
-  final Map<Permission, PermissionStatus> _permissionStatus = {};
+  // Map<Permission, PermissionStatus> get permissionStatus => _permissionStatus;
+  // final Map<Permission, PermissionStatus> _permissionStatus = {};
 
   /// 获取Wifi名称，需要location权限
   String get ssid => _ssid;
@@ -77,15 +81,9 @@ final class AppService extends GetxService with WidgetsBindingObserver {
 
   void removeObserver(AppServiceObserver observer) => _observers.remove(observer);
 
-  /// 请求系统权限
-  Future<PermissionStatus> requestPermission(Permission permission) async {
-    return await permission.request();
-  }
 
   /// 打开系统设置页
-  Future<void> openAppSettings(AppSettingsType type) async {
-    return await AppSettings.openAppSettings(type: type);
-  }
+
 
   Future<void> _updateLifecycleState(AppLifecycleState state) async {
     // Log.t('AppLifeCycle: $state');
@@ -99,7 +97,7 @@ final class AppService extends GetxService with WidgetsBindingObserver {
 
     if (state == AppLifecycleState.paused) {
       Log.d('AppLifeCycle app paused...');
-      DeviceService.instance.sleepLowPowerDevice();
+      // DeviceService.instance.sleepLowPowerDevice();
     }
     if (state == AppLifecycleState.resumed) {
       Future.delayed(const Duration(seconds: 1), () async {
@@ -113,39 +111,21 @@ final class AppService extends GetxService with WidgetsBindingObserver {
   }
 
   Future<void> _update() async {
-    await _updatePermissionStatus();
+    // await _updatePermissionStatus();
     await _updateWifiInfo();
   }
 
   Future<void> _updateDeviceInfo() async {
-    final plugin = DeviceInfoPlugin();
-    if (Platform.isIOS) {
-      final info = await plugin.iosInfo;
-      _isPhysicalDevice = info.isPhysicalDevice;
-    } else if (Platform.isAndroid) {
-      final info = await plugin.androidInfo;
-      _isPhysicalDevice = info.isPhysicalDevice;
-      if (info.version.sdkInt > 30) {
-        Log.i('Android device sdkInt: ${info.version.sdkInt}');
-        bluetoothPermissions.addAll([
-          Permission.bluetoothScan,
-          Permission.bluetoothAdvertise,
-          Permission.bluetoothConnect,
-        ]);
-        checkedPermissions.addAll(bluetoothPermissions);
-      }
-    } else {
-      _isPhysicalDevice = false;
-    }
+
   }
 
-  Future<void> _updatePermissionStatus() async {
-    for (final permission in checkedPermissions) {
-      final status = await permission.status;
-      _permissionStatus[permission] = status;
-      // Log.t('${permission.toString()}, status: $status');
-    }
-  }
+  // Future<void> _updatePermissionStatus() async {
+  //   for (final permission in checkedPermissions) {
+  //     final status = await permission.status;
+  //     _permissionStatus[permission] = status;
+  //     // Log.t('${permission.toString()}, status: $status');
+  //   }
+  // }
 
   Future<void> _updateWifiInfo() async {
     final info = NetworkInfo();
@@ -160,15 +140,7 @@ final class AppService extends GetxService with WidgetsBindingObserver {
     // Log.t('Wi-Fi Name: $_ssid');
   }
 
-  // Future<void> initConnectivity() async {
-  //   List<ConnectivityResult> results;
-  //   try {
-  //     results = await _connectivity.checkConnectivity();
-  //     _updateConnectionStatus(results);
-  //   } on PlatformException catch (e) {
-  //     Log.e('Couldn\'t check connectivity status: $e');
-  //   }
-  // }
+
   Future<void> _checkConnectivity() async {
     try {
       List<ConnectivityResult> results = await _connectivity.checkConnectivity();
@@ -213,93 +185,9 @@ final class AppService extends GetxService with WidgetsBindingObserver {
   }
 
   Future<String> getPlatformState() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    String version = packageInfo.version;
 
-    return "$version + 25.10.30.21.30";
+    return "25.10.30.21.30";
   }
 }
 
-extension AppServiceNavigate on AppService {
-  Future<void> _waitForRefreshingDone() async {
-    while (!Get.isRegistered<DeviceListController>()) {
-      Log.d("Notification > wait device controller .");
-      await Future.delayed(const Duration(milliseconds: 50));
-    }
 
-    final controller = Get.find<DeviceListController>();
-    if (!controller.hasRefreshed) {
-      Log.d("Notification > wait on refersh .");
-      await controller.refreshDevices();
-    }
-    await controller.waitForRefreshingDone();
-  }
-
-  Future<void> navigateDoorbell(NotificationMessage notificationMessage) async {
-    String? thirdPartDeviceId = notificationMessage.thirdPartDeviceId;
-    String? messageId = notificationMessage.messageId;
-    Log.d("Notification to doorbell thirdPartDeviceId=$thirdPartDeviceId, messageId=$messageId .");
-    if (thirdPartDeviceId != null && messageId != null) {
-      Log.d("Notification > waiting for device refresh .");
-      await _waitForRefreshingDone();
-      var device = DeviceService.instance.getDeviceByThirdPartDeviceId(thirdPartDeviceId);
-      if (device == null) {
-        Log.e("Notification > device not found .");
-        return;
-      }
-
-      Log.e("Notification > go to doorbell page .");
-      Get.toNamed(
-        DeviceListPaths.doorbell,
-        arguments: {ArgumentsConstants.deviceId: device.deviceId, ArgumentsConstants.messageId: messageId},
-      );
-    }
-  }
-
-  Future<void> navigateEvent(NotificationMessage notificationMessage) async {
-    await _waitForRefreshingDone();
-
-    if (Get.context == null) {
-      Log.w("Notification > application is not running, cache it.");
-      return;
-    }
-
-    String? deviceId = notificationMessage.deviceId;
-    String? thirdPartDeviceId = notificationMessage.thirdPartDeviceId;
-
-    Device? device;
-    if (deviceId != null) {
-      Log.d("Notification > get device by id:$deviceId.");
-      device = DeviceService.instance.getDeviceByDeviceId(deviceId);
-    } else if (thirdPartDeviceId != null) {
-      Log.d("Notification > get device by thirdPartDeviceId:$thirdPartDeviceId.");
-      device = DeviceService.instance.getDeviceByThirdPartDeviceId(thirdPartDeviceId);
-    }
-
-    if (device == null) {
-      Log.e("Notification > device not found.");
-      return;
-    }
-
-    Log.d("Notification > ${Get.currentRoute} .");
-    if (Get.currentRoute != MainTabsPaths.main) {
-      Log.d("Notification > close all routes until main.");
-      Get.until((route) => Get.currentRoute == MainTabsPaths.main);
-    }
-
-    if (!Get.isRegistered<EventListController>()) {
-      Log.e("Notification > event list controller not found.");
-      return;
-    }
-
-    Log.d("Notification > jump to event page .");
-    var selectedDateTime = DateTime.fromMillisecondsSinceEpoch(notificationMessage.timestamp);
-    Get.find<EventListController>().updateOptionDevice(
-      device,
-      selectedDateTime: selectedDateTime,
-      loadData: true,
-      tagetEventTime: notificationMessage.timestamp,
-    );
-    Get.find<MainTabsController>().onTapBottomNavigationBar(1);
-  }
-}

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dart_extensions/dart_extensions.dart';
 
+import '../../assets/assets.gen.dart';
 import '../../common/utils/image_utils.dart';
-import '../../gen/assets.gen.dart';
 import '../../model/value_add_product_response.dart';
 
 class ValueServiceCard extends StatelessWidget {

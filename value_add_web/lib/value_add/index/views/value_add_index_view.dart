@@ -3,16 +3,16 @@ import 'dart:io';
 import 'package:dart_extensions/dart_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sightsys/app/modules/value_add/base/mixin/value_add_mixin.dart';
-import 'package:sightsys/app/modules/value_add/value_add_routes.dart';
-import 'package:sightsys/app/modules/value_add/widget/value_service_card.dart';
+import 'package:value_add_web/common/widget/loadable_scaffold.dart';
+import '../../../assets/app_theme.dart';
+import '../../../common/widget/empty_view.dart';
+import '../../../services/log_service.dart';
+import '../../value_add_routes.dart';
+import '../../widget/value_service_card.dart';
 import '../controllers/value_add_index_controller.dart';
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:sightsys/app/common/widget/empty_view.dart';
-import 'package:sightsys/assets/app_theme.dart';
 import '../../../../../assets/assets.gen.dart';
 import '../../../../common/controller/route_view_controller.dart';
-import '../../../../common/widget/build_base_widget.dart';
 
 ///
 class ValueAddIndexView extends GetView<ValueAddIndexController> {
@@ -22,11 +22,12 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
   Widget build(BuildContext context) {
     return RouteView(
       controller: controller,
-      child: BuildBaseWidget.buildScaffold(
-        appBar: _buildAppBar(context),
-        backgroundColor: AppTheme.current.colors.inverseBackground,
-        body: _buidBody(context),
-      ),
+      child: LoadableScaffold(body: _buidBody(context),appBar: _buildAppBar(context),backgroundColor:  AppTheme.current.colors.inverseBackground,)
+      // BuildBaseWidget.buildScaffold(
+      //   appBar: _buildAppBar(context),
+      //   backgroundColor: AppTheme.current.colors.inverseBackground,
+      //   body: _buidBody(context),
+      // ),
     );
   }
 

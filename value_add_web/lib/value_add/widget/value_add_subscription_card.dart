@@ -1,11 +1,11 @@
 import 'package:dart_extensions/dart_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sight_sys_plugin/modules/device/valueAdd/value_add_subscription_list_response.dart';
-import 'package:sightsys/app/common/utils/Text_Utils.dart';
-import 'package:sightsys/app/common/utils/TimeUtils.dart';
 
-import 'package:sightsys/assets/assets.gen.dart';
+import '../../assets/assets.gen.dart';
+import '../../common/utils/TimeUtils.dart';
+import '../../common/utils/text_utils.dart';
+import '../../model/value_add_subscription_list_response.dart';
 
 class ValueAddSubscriptionCard extends StatelessWidget {
   final int index;

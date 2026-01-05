@@ -2,9 +2,9 @@ import 'package:dart_extensions/dart_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/widget_extensions.dart';
-import 'package:sight_sys_plugin/modules/device/valueAdd/check_device_available_by_plan_response.dart';
 
-import 'package:sightsys/assets/assets.gen.dart';
+import '../../assets/assets.gen.dart';
+import '../../model/check_device_available_by_plan_response.dart';
 
 class ValueAddDeviceChooseCard extends StatelessWidget {
   final int index;

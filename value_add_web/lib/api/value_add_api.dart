@@ -289,24 +289,18 @@ class ValueAddApi {
     }
   }
 
-  // Future<CheckDeviceAvailableByplanResponse?> getValueAddAvailableDeviceByPlan(
-  //     String planId,
-  //     List<Map<String, dynamic>> deviceMaps,
-  //     ) async {
-  //   try {
-  //     // List<Map<String, dynamic>> deviceValue = devices.map((device) => device.toJson()).toList();
-  //
-  //     final args = {'plan_id': planId, 'devices': deviceMaps};
-  //     String? response = await dioHttp.get("/api/v1/vas/products/batch-check-compatibility/",params: args);
-  //     if (response == null) {
-  //       return null;
-  //     }
-  //     CheckDeviceAvailableByplanResponse model =
-  //     CheckDeviceAvailableByplanResponse.fromJson(json.decode(response));
-  //
-  //     return model;
-  //   } catch (e) {
-  //     throw Exception("Failed to getValueAddCheckDeviceAvailableByPlan : $e");
-  //   }
-  // }
+  Future<CheckDeviceAvailableByPlanResponse?> getValueAddAvailableDeviceByPlan(
+      String planId,
+      List<Map<String, dynamic>> deviceMaps,
+      ) async {
+    try {
+      // List<Map<String, dynamic>> deviceValue = devices.map((device) => device.toJson()).toList();
+
+      final args = {'plan_id': planId, 'devices': deviceMaps};
+      CheckDeviceAvailableByPlanResponse? response = await dioHttp.get<CheckDeviceAvailableByPlanResponse>("/api/v1/vas/products/batch-check-compatibility/",params: args);
+      return response;
+    } catch (e) {
+      throw Exception("Failed to getValueAddCheckDeviceAvailableByPlan : $e");
+    }
+  }
 }

@@ -5,12 +5,17 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:value_add_web/api/value_add_api.dart';
 
 import '../../../common/model/load_state.dart';
+import '../../../common/widget/basic_snack.dart';
 import '../../../common/widget/loadable_scaffold.dart';
 import '../../../model/check_device_available_by_plan_response.dart';
 import '../../../model/value_add_create_order_response.dart';
 import '../../../model/value_add_product_response.dart';
+import '../../../common/controller/route_view_controller.dart';
+import '../../../services/app_service.dart';
+import '../../../services/log_service.dart';
 
 
 enum PayProgress { undo, success, fail, cancel }
@@ -43,21 +48,8 @@ class ValueAddDeviceChooseController extends RouteViewController
 
   @override
   void onInit() {
-    AppService.instance.addObserver(this);
     showLoadingWidget.value = false;
     super.onInit();
-  }
-
-  @override
-  void onReady() async {
-    await initService(initAirwallex: true);
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    AppService.instance.removeObserver(this);
-    super.onClose();
   }
 
   @override
@@ -75,24 +67,6 @@ class ValueAddDeviceChooseController extends RouteViewController
     Log.d("goAirwallexAndPayOrder back onDisAppear");
 
     super.onDisAppear(isLastDisAppear, isHidden);
-  }
-
-  @override
-  void onAppPause() {
-    Log.d("goAirwallexAndPayOrder back onAppPause");
-    super.onAppPause();
-  }
-
-  @override
-  void onAppResume() {
-    Log.d("goAirwallexAndPayOrder back onAppResume");
-    //todo ios 待测试流程
-    super.onAppResume();
-  }
-
-  @override
-  void onAppInfoUpdated() {
-    super.onAppInfoUpdated();
   }
 
   Future<void> refreshData() async {
@@ -113,11 +87,11 @@ class ValueAddDeviceChooseController extends RouteViewController
   }
 
   Future<void> _fetchData() async {
-    await initService();
-    final deviceMaps =
-        await DeviceService.instance.getFirmwareVersionsOfDevices();
+    // await initService();
+    final deviceMaps =<Map<String,dynamic>>[];
+
     if (deviceMaps.isNotEmpty) {
-      final res = await service?.getValueAddAvailableDeviceByPlan(
+      final res = await ValueAddApi.instance.getValueAddAvailableDeviceByPlan(
         plans.planId ?? "",
         deviceMaps,
       );
@@ -149,12 +123,12 @@ class ValueAddDeviceChooseController extends RouteViewController
   }
 
   Future choosePaymentMethodDialog(BuildContext context) async {
-    await choosePaymentMethodAction(context, plans, (
-      channelCode,
-      isRepay,
-    ) async {
-      subOrder(context, channelCode, isRepay);
-    });
+    // await ValueAddApi.instance.choosePaymentMethodAction(context, plans, (
+    //   channelCode,
+    //   isRepay,
+    // ) async {
+    //   subOrder(context, channelCode, isRepay);
+    // });
   }
 
   // 下单
@@ -168,12 +142,12 @@ class ValueAddDeviceChooseController extends RouteViewController
     }
 
     startLoading();
-    await initService();
+    // await initService();
 
     try {
       DeviceAvailableResults device = devices[selectIndex.value];
       if (!isRepayOrder) {
-        suborderResponse = await service?.createOrder(
+        suborderResponse = await ValueAddApi.instance.createOrder(
           deviceId: device.deviceId ?? "",
           paymentChannel: channelCode,
           priceId: prices.priceId ?? "",
@@ -189,22 +163,22 @@ class ValueAddDeviceChooseController extends RouteViewController
         BasicSnack.error("create_order_failed_err".tr);
         return;
       }
-      SupavizPaymentManager.instance.addLocalCloudStorageOrder(
-        orderNo: suborderResponse?.orderNumber ?? "",
-        platform: channelCode,
-      );
+      // SupavizPaymentManager.instance.addLocalCloudStorageOrder(
+      //   orderNo: suborderResponse?.orderNumber ?? "",
+      //   platform: channelCode,
+      // );
 
       //开始支付
       if (channelCode.contains("paypal")) {
         Log.d("paypal hmOrderId:${suborderResponse?.orderNumber}");
 
         //跳转网页m suborderResponse?.packageValue ??
-        await PrivacyPolicyHelper.openWebViewPageWithUrl(
-          context,
-          "paypal_label".tr,
-          "",
-          // "https://www.paypal.com/checkoutnow?token=4WS556916Y4460845",
-        );
+        // await PrivacyPolicyHelper.openWebViewPageWithUrl(
+        //   context,
+        //   "paypal_label".tr,
+        //   "",
+        //   // "https://www.paypal.com/checkoutnow?token=4WS556916Y4460845",
+        // );
         openPaymentWeb = true;
         Log.d("webview end **");
       } else if (channelCode.contains("airwallex")) {
@@ -213,46 +187,46 @@ class ValueAddDeviceChooseController extends RouteViewController
         // if (Platform.isIOS) {
         //   stopLoading();
         // }
-        PaymentResultExtend? resultExtend = await SupavizPaymentManager.instance
-            .payWithAirwallexV1(
-              orderNumber: suborderResponse?.orderNumber ?? "",
-              totalAmount: suborderResponse?.totalAmount ?? 0,
-              currency: suborderResponse?.currency ?? "",
-              intentId: suborderResponse?.intentId ?? "",
-              clientSecret: suborderResponse?.clientSecret ?? "",
-              returnUrl: suborderResponse?.returnUrl ?? "",
-            );
-
-        openPaymentWeb = false;
-        Log.d(
-          "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result:${resultExtend.toString()}",
-        );
-
-        if (resultExtend == null) {
-          Log.d(
-            "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result:null",
-          );
-
-          Get.back(result: "fail");
-          return;
-        }
-        await Future.delayed(Duration(seconds: 1));
-        if (resultExtend.status.toLowerCase().startsWith("succ")) {
-          Log.d(
-            "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result: ssss,payprogress:${payProgress.value.name}",
-          );
-          //todo  ios 进入当前页面，第一个支付弹窗被下拉消失后，第二次支付成功或者失败，或者下拉消失时会自动返回上级页面
-
-          //成功
-          payProgress.value = PayProgress.success;
-        } else {
-          Log.d(
-            "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result:fffff",
-          );
-
-          //fail
-          Get.back(result: "fail");
-        }
+        // PaymentResultExtend? resultExtend = await SupavizPaymentManager.instance
+        //     .payWithAirwallexV1(
+        //       orderNumber: suborderResponse?.orderNumber ?? "",
+        //       totalAmount: suborderResponse?.totalAmount ?? 0,
+        //       currency: suborderResponse?.currency ?? "",
+        //       intentId: suborderResponse?.intentId ?? "",
+        //       clientSecret: suborderResponse?.clientSecret ?? "",
+        //       returnUrl: suborderResponse?.returnUrl ?? "",
+        //     );
+        //
+        // openPaymentWeb = false;
+        // Log.d(
+        //   "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result:${resultExtend.toString()}",
+        // );
+        //
+        // if (resultExtend == null) {
+        //   Log.d(
+        //     "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result:null",
+        //   );
+        //
+        //   Get.back(result: "fail");
+        //   return;
+        // }
+        // await Future.delayed(Duration(seconds: 1));
+        // if (resultExtend.status.toLowerCase().startsWith("succ")) {
+        //   Log.d(
+        //     "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result: ssss,payprogress:${payProgress.value.name}",
+        //   );
+        //   //todo  ios 进入当前页面，第一个支付弹窗被下拉消失后，第二次支付成功或者失败，或者下拉消失时会自动返回上级页面
+        //
+        //   //成功
+        //   payProgress.value = PayProgress.success;
+        // } else {
+        //   Log.d(
+        //     "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result:fffff",
+        //   );
+        //
+        //   //fail
+        //   Get.back(result: "fail");
+        // }
       }
     } catch (err) {
       Log.d("**subscripbeGoodsAction err:${err.toString()}");
@@ -275,52 +249,52 @@ class ValueAddDeviceChooseController extends RouteViewController
     startLoading();
 
     await Future.delayed(Duration(seconds: 2));
-    try {
-      String paymentChannel = suborderResponse?.paymentChannel ?? "";
-      if (paymentChannel.contains("airwallex")) {
-        RetrievePaymentIntentReponse res = await AirwallexManager.instance
-            .retrieveAPaymentIntent(suborderResponse?.intentId ?? "");
-        Log.i(
-          "retryGetPayDetail with intentId:${suborderResponse?.intentId} res:${res.toJson()}",
-        );
-        Log.i(
-          "retryGetPayDetail with last attemp:${res.latestPaymentAttempt?.toJson()} }",
-        );
-
-        String status = res.status ?? "";
-        //         出现在Intent刚创建的场景下，一般代表支付请求已创建，但客户尚未执行任何操作。
-        // 备注：若confirm过后看到该状态代表此次消费者的购买行为失败。如果需要了解是失败原因 可通过查询Intent接口返回的“latest_payment_attempt.failure_code”来判断。
-        if (status.equalsIgnoreCase("REQUIRES_PAYMENT_METHOD")) {
-          LatestPaymentAttempt? latestPaymentAttempt = res.latestPaymentAttempt;
-
-          if (latestPaymentAttempt != null) {
-            String attemptStatus = latestPaymentAttempt.status ?? "";
-            String failureCode = latestPaymentAttempt.failureCode ?? "";
-            // authentication_declined: 人脸或者3D验证失败
-            // issuer_declined 授权失败
-            if (failureCode.isNotEmpty ||
-                attemptStatus.equalsIgnoreCase("failed")) {
-              Get.back(result: attemptStatus);
-            } else {
-              // BasicToast.error("general_err".tr);
-              Get.back(result: "fail");
-            }
-          } else {
-            Get.back(result: "fail");
-          }
-        } else if (status.equalsIgnoreCase("SUCCEEDED")) {
-          payProgress.value = PayProgress.success;
-        } else {
-          Get.back(result: "fail");
-        }
-      } else {
-        //paypal
-        Get.back(result: "fail");
-      }
-    } catch (e) {
-      stopLoading();
-    } finally {
-      stopLoading();
-    }
+    // try {
+    //   String paymentChannel = suborderResponse?.paymentChannel ?? "";
+    //   if (paymentChannel.contains("airwallex")) {
+    //     RetrievePaymentIntentReponse res = await AirwallexManager.instance
+    //         .retrieveAPaymentIntent(suborderResponse?.intentId ?? "");
+    //     Log.i(
+    //       "retryGetPayDetail with intentId:${suborderResponse?.intentId} res:${res.toJson()}",
+    //     );
+    //     Log.i(
+    //       "retryGetPayDetail with last attemp:${res.latestPaymentAttempt?.toJson()} }",
+    //     );
+    //
+    //     String status = res.status ?? "";
+    //     //         出现在Intent刚创建的场景下，一般代表支付请求已创建，但客户尚未执行任何操作。
+    //     // 备注：若confirm过后看到该状态代表此次消费者的购买行为失败。如果需要了解是失败原因 可通过查询Intent接口返回的“latest_payment_attempt.failure_code”来判断。
+    //     if (status.equalsIgnoreCase("REQUIRES_PAYMENT_METHOD")) {
+    //       LatestPaymentAttempt? latestPaymentAttempt = res.latestPaymentAttempt;
+    //
+    //       if (latestPaymentAttempt != null) {
+    //         String attemptStatus = latestPaymentAttempt.status ?? "";
+    //         String failureCode = latestPaymentAttempt.failureCode ?? "";
+    //         // authentication_declined: 人脸或者3D验证失败
+    //         // issuer_declined 授权失败
+    //         if (failureCode.isNotEmpty ||
+    //             attemptStatus.equalsIgnoreCase("failed")) {
+    //           Get.back(result: attemptStatus);
+    //         } else {
+    //           // BasicToast.error("general_err".tr);
+    //           Get.back(result: "fail");
+    //         }
+    //       } else {
+    //         Get.back(result: "fail");
+    //       }
+    //     } else if (status.equalsIgnoreCase("SUCCEEDED")) {
+    //       payProgress.value = PayProgress.success;
+    //     } else {
+    //       Get.back(result: "fail");
+    //     }
+    //   } else {
+    //     //paypal
+    //     Get.back(result: "fail");
+    //   }
+    // } catch (e) {
+    //   stopLoading();
+    // } finally {
+    //   stopLoading();
+    // }
   }
 }

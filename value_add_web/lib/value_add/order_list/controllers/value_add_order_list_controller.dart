@@ -1,13 +1,14 @@
 import 'package:get/get.dart';
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:sight_sys_plugin/modules/device/valueAdd/value_add_order_list_response.dart';
-import 'package:sightsys/app/common/model/load_state.dart';
-import 'package:sightsys/app/common/widget/loadable_scaffold.dart';
-import 'package:sightsys/app/modules/value_add/base/mixin/value_add_mixin.dart';
-import 'package:sightsys/app/services/log_service.dart';
+
+import '../../../api/value_add_api.dart';
+import '../../../common/model/load_state.dart';
+import '../../../common/widget/loadable_scaffold.dart';
+import '../../../model/value_add_order_list_response.dart';
+import '../../../services/log_service.dart';
 
 class ValueAddOrderListController extends GetxController
-    with LoadableController, ValueAddMixin {
+    with LoadableController {
   final RxList<ValueAddOrderItem> orders = <ValueAddOrderItem>[].obs;
 
   final EasyRefreshController refreshController = EasyRefreshController(
@@ -33,7 +34,6 @@ class ValueAddOrderListController extends GetxController
 
   @override
   void onReady() async {
-    await initService();
     refreshController.callRefresh();
     super.onReady();
   }
@@ -84,10 +84,8 @@ class ValueAddOrderListController extends GetxController
   }
 
   Future getOrderList() async {
-    if (service == null) {
-      await initService();
-    }
-    ValueAddOrderListResponse? res = await service?.getValueAddOrderList(
+
+    ValueAddOrderListResponse? res = await ValueAddApi.instance.getValueAddOrderList(
       page: currentPage,
       pageSize: pageSize,
       status: 'PAID,PROCESSING',

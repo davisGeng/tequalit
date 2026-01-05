@@ -3,18 +3,15 @@ import 'dart:convert';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sight_sys_plugin/modules/device/valueAdd/value_add_product_response.dart';
-import 'package:sightsys/app/common/model/load_state.dart';
-import 'package:sightsys/app/modules/value_add/airwallex_page/plugin_resource/types/payment_result_extend.dart';
-import 'package:sightsys/app/modules/value_add/airwallex_page/plugin_resource/util/airwallex_manager.dart';
-import 'package:sightsys/app/modules/value_add/base/mixin/value_add_mixin.dart';
-import 'package:sightsys/app/modules/value_add/value_add_routes.dart';
 
-import 'package:sightsys/app/services/app_service.dart';
-import 'package:sightsys/app/services/log_service.dart';
-import 'package:sightsys/app/common/controller/route_view_controller.dart';
+import '../../../api/value_add_api.dart';
+import '../../../common/controller/route_view_controller.dart';
+import '../../../common/model/load_state.dart';
+import '../../../model/value_add_product_response.dart';
+import '../../../services/log_service.dart';
+import '../../value_add_routes.dart';
 
-class ValueAddIndexController extends RouteViewController with AppServiceObserver, ValueAddMixin {
+class ValueAddIndexController extends RouteViewController  {
   // 翻页数据
   int currentPage = 1;
   final int pageSize = 10;
@@ -71,7 +68,6 @@ class ValueAddIndexController extends RouteViewController with AppServiceObserve
     isMoreDataAvailable.value = false;
     loadState.value = LoadState.loading();
     try {
-      await initService();
 
       await _fetchData();
       loadState.value = LoadState.success();
@@ -89,7 +85,7 @@ class ValueAddIndexController extends RouteViewController with AppServiceObserve
 
   Future<void> _fetchData() async {
     await Future.delayed(Duration(seconds: 1));
-    ValueAddProductResponse? response = await service?.getProductList(
+    ValueAddProductResponse? response = await ValueAddApi.instance.getProductList(
       filterCountry: false,
       // productType: "CLOUD_STORAGE",
       page: currentPage,
@@ -136,55 +132,5 @@ class ValueAddIndexController extends RouteViewController with AppServiceObserve
     );
   }
 
-  payAction() async {
-    String clientSecret =
-        "eyJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X2lkIjoiZTMyYWY5OTEtNzZmYy00YmFmLWE5NjUtYjFlMDJiYjc3MzMwIiwiaW50ZW50X2lkIjoiaW50X2hrZG12aDh2c2hjamYwNnlsY3QiLCJidXNpbmVzc19uYW1lIjoiZGVtbytDQVJFVEVDSCIsInR5cGUiOiJjbGllbnQtc2VjcmV0IiwicGFkYyI6IkhLIiwiaWF0IjoxNzYxODk0MTY0LCJleHAiOjE3NjE4OTc3NjR9.6IKvICLAPyedyLM7j2BIaK5OMznbzpjk5qYbDu3Mvb0";
-    String intentId = "";
-    String returnUrl = "";
-    String orderNo = "";
 
-    String countryCode = "US";
-    String currency = "USD";
-
-    List<String> paymentMethods = [];
-    paymentMethods = ['card'];
-    countryCode = "US";
-    currency = "USD";
-
-    Map<String, dynamic> map = {};
-    map["id"] = intentId;
-    map["client_secret"] = clientSecret;
-    map["amount"] = 5;
-    map['countryCode'] = countryCode;
-    map["returnUrl"] = returnUrl;
-    map["paymentMethods"] = paymentMethods;
-    map["currency"] = currency;
-    map['merchant_order_id'] = orderNo;
-    map['request_id'] = UniqueKey().toString();
-    map['email'] = "";
-
-    bool isCardMethod = false;
-    if (paymentMethods.length == 1) {
-      if (paymentMethods[0] == "card") {
-        isCardMethod = true;
-      }
-    }
-    PaymentResultExtend resultExtend = await AirwallexManager.instance.presentEntirePaymentFlowWithIntentMap(
-      isCardMethod ? AirwallexPaymentMethod.card : AirwallexPaymentMethod.entire,
-
-      BillingMode.oneOff,
-      map,
-    );
-    if (resultExtend.status.toLowerCase().startsWith("succ")) {
-      //成功
-    } else if (resultExtend.status.toLowerCase().startsWith("cancel")) {
-      //取消
-      Get.back(result: "fail");
-      // payProgress.value = PayProgress.cancel;
-    } else {
-      // Get.back(result: "fail");
-
-      // payProgress.value = PayProgress.fail;
-    }
-  }
 }

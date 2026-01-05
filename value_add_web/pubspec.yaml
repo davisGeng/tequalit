@@ -49,6 +49,7 @@ dependencies:
   dart_extensions: ^2.2.4
   easy_refresh: ^3.4.0
   connectivity_plus: ^6.1.4
+  network_info_plus: 6.1.4
 
 dev_dependencies:
   flutter_test:

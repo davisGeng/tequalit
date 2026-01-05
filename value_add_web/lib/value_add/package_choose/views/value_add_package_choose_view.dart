@@ -1,20 +1,19 @@
 import 'package:dart_extensions/dart_extensions.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 
 import 'package:get/get.dart';
-import 'package:sight_sys_plugin/modules/device/valueAdd/value_add_product_response.dart';
-import 'package:sightsys/app/common/controller/route_view_controller.dart';
-import 'package:sightsys/app/common/widget/basic_button.dart';
-import 'package:sightsys/app/common/widget/loadable_scaffold.dart';
-import 'package:sightsys/app/modules/value_add/package_choose/controllers/value_add_package_choose_controller.dart';
-import 'package:sightsys/app/modules/value_add/value_add_routes.dart';
-import 'package:sightsys/app/modules/value_add/widget/value_add_4g_package_card.dart';
-import 'package:sightsys/app/modules/value_add/widget/value_add_package_card.dart';
-import 'package:sightsys/assets/assets.gen.dart';
-import 'package:sightsys/app/common/widget/empty_view.dart';
-import 'package:sightsys/assets/app_theme.dart';
+
+import '../../../assets/app_theme.dart';
+import '../../../assets/assets.gen.dart';
+import '../../../common/controller/route_view_controller.dart';
+import '../../../common/widget/basic_button.dart';
+import '../../../common/widget/empty_view.dart';
+import '../../../common/widget/loadable_scaffold.dart';
+import '../../value_add_routes.dart';
+import '../../widget/value_add_4g_package_card.dart';
+import '../../widget/value_add_package_card.dart';
+import '../controllers/value_add_package_choose_controller.dart';
 
 class ValueAddPackageChooseView
     extends GetView<ValueAddPackageChooseController> {
@@ -175,53 +174,54 @@ class ValueAddPackageChooseView
           padding: EdgeInsets.only(left: 24, right: 24),
           width: double.maxFinite,
           height: 188,
-          child: CardSwiper(
-            controller: controller.swiperController,
-            cardsCount:
-                controller.banners.isNotEmpty ? controller.banners.length : 0,
-            onSwipe: controller.onSwipe,
-            onUndo: controller.onUndo,
-            numberOfCardsDisplayed: 1,
-            allowedSwipeDirection: AllowedSwipeDirection.symmetric(
-              horizontal: false,
-              vertical: false,
-            ),
-            backCardOffset: const Offset(0, 0),
-            padding: EdgeInsets.zero,
-            cardBuilder: (
-              context,
-              index,
-              horizontalThresholdPercentage,
-              verticalThresholdPercentage,
-            ) {
-              if (controller.banners[index].imageUrl ==
-                  ValueAddProductServiceType.data4G.typeName) {
-                return GestureDetector(
-                  child: SizedBox(
-                    height: 188,
-                    child: Assets.images.iconServiceData4gBanner.image(
-                      width: double.maxFinite,
-                      height: 188,
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  onTap: () {},
-                );
-              } else {
-                return GestureDetector(
-                  child: SizedBox(
-                    height: 188,
-                    child: Assets.images.iconServiceCloudBanner.image(
-                      width: double.maxFinite,
-                      height: 188,
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  onTap: () {},
-                );
-              }
-            },
-          ),
+          child: Text("data")
+          // CardSwiper(
+          //   controller: controller.swiperController,
+          //   cardsCount:
+          //       controller.banners.isNotEmpty ? controller.banners.length : 0,
+          //   onSwipe: controller.onSwipe,
+          //   onUndo: controller.onUndo,
+          //   numberOfCardsDisplayed: 1,
+          //   allowedSwipeDirection: AllowedSwipeDirection.symmetric(
+          //     horizontal: false,
+          //     vertical: false,
+          //   ),
+          //   backCardOffset: const Offset(0, 0),
+          //   padding: EdgeInsets.zero,
+          //   cardBuilder: (
+          //     context,
+          //     index,
+          //     horizontalThresholdPercentage,
+          //     verticalThresholdPercentage,
+          //   ) {
+          //     if (controller.banners[index].imageUrl ==
+          //         ValueAddProductServiceType.data4G.typeName) {
+          //       return GestureDetector(
+          //         child: SizedBox(
+          //           height: 188,
+          //           child: Assets.images.iconServiceData4gBanner.image(
+          //             width: double.maxFinite,
+          //             height: 188,
+          //             fit: BoxFit.fill,
+          //           ),
+          //         ),
+          //         onTap: () {},
+          //       );
+          //     } else {
+          //       return GestureDetector(
+          //         child: SizedBox(
+          //           height: 188,
+          //           child: Assets.images.iconServiceCloudBanner.image(
+          //             width: double.maxFinite,
+          //             height: 188,
+          //             fit: BoxFit.fill,
+          //           ),
+          //         ),
+          //         onTap: () {},
+          //       );
+          //     }
+          //   },
+          // ),
         ),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 24),

@@ -12,6 +12,9 @@ import 'package:flutter/widgets.dart';
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
+  /// File path: assets/images/failure.png
+  AssetGenImage get failure => const AssetGenImage('assets/images/failure.png');
+
   /// File path: assets/images/icon_basic_button_arrow_blue.png
   AssetGenImage get iconBasicButtonArrowBlue =>
       const AssetGenImage('assets/images/icon_basic_button_arrow_blue.png');
@@ -24,6 +27,10 @@ class $AssetsImagesGen {
   AssetGenImage get iconBasicButtonArrowRed =>
       const AssetGenImage('assets/images/icon_basic_button_arrow_red.png');
 
+  /// File path: assets/images/icon_ble_device.png
+  AssetGenImage get iconBleDevice =>
+      const AssetGenImage('assets/images/icon_ble_device.png');
+
   /// File path: assets/images/icon_check_box_selected.png
   AssetGenImage get iconCheckBoxSelected =>
       const AssetGenImage('assets/images/icon_check_box_selected.png');
@@ -35,6 +42,22 @@ class $AssetsImagesGen {
   /// File path: assets/images/icon_checkbox_single_selected.png
   AssetGenImage get iconCheckboxSingleSelected =>
       const AssetGenImage('assets/images/icon_checkbox_single_selected.png');
+
+  /// File path: assets/images/icon_close.png
+  AssetGenImage get iconClose =>
+      const AssetGenImage('assets/images/icon_close.png');
+
+  /// File path: assets/images/icon_pay_success.png
+  AssetGenImage get iconPaySuccess =>
+      const AssetGenImage('assets/images/icon_pay_success.png');
+
+  /// File path: assets/images/icon_radio_box.png
+  AssetGenImage get iconRadioBox =>
+      const AssetGenImage('assets/images/icon_radio_box.png');
+
+  /// File path: assets/images/icon_radio_box_selected.png
+  AssetGenImage get iconRadioBoxSelected =>
+      const AssetGenImage('assets/images/icon_radio_box_selected.png');
 
   /// File path: assets/images/icon_service_4g.png
   AssetGenImage get iconService4g =>
@@ -101,12 +124,18 @@ class $AssetsImagesGen {
 
   /// List of all assets
   List<AssetGenImage> get values => [
+        failure,
         iconBasicButtonArrowBlue,
         iconBasicButtonArrowDisabled,
         iconBasicButtonArrowRed,
+        iconBleDevice,
         iconCheckBoxSelected,
         iconCheckBoxUnselected,
         iconCheckboxSingleSelected,
+        iconClose,
+        iconPaySuccess,
+        iconRadioBox,
+        iconRadioBoxSelected,
         iconService4g,
         iconServiceAi,
         iconServiceCloud,

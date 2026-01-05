@@ -1,14 +1,12 @@
 import 'package:get/get.dart';
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:sight_sys_plugin/modules/device/valueAdd/value_add_subscription_list_response.dart';
-import 'package:sightsys/app/common/model/load_state.dart';
-import 'package:sightsys/app/common/widget/loadable_scaffold.dart';
-import 'package:sightsys/app/modules/value_add/base/mixin/value_add_mixin.dart';
-import 'package:sightsys/app/services/device_service.dart';
-import 'package:sightsys/app/services/log_service.dart';
 
-class ValueAddSubscriptionListController extends GetxController with LoadableController, ValueAddMixin {
-  DeviceService get _deviceService => Get.find<DeviceService>();
+import '../../../api/value_add_api.dart';
+import '../../../common/model/load_state.dart';
+import '../../../common/widget/loadable_scaffold.dart';
+import '../../../model/value_add_subscription_list_response.dart';
+
+class ValueAddSubscriptionListController extends GetxController with LoadableController {
 
   final EasyRefreshController refreshController = EasyRefreshController(
     controlFinishRefresh: true,
@@ -32,7 +30,6 @@ class ValueAddSubscriptionListController extends GetxController with LoadableCon
 
   @override
   void onReady() async {
-    await initService();
 
     super.onReady();
   }
@@ -83,11 +80,11 @@ class ValueAddSubscriptionListController extends GetxController with LoadableCon
   }
 
   Future getOrderList() async {
-    if (service == null) {
-      await initService();
-    }
+    // if (service == null) {
+    //   await initService();
+    // }
 
-    final res = await service?.getValueAddSubscriptions(useGroupBy: true);
+    final res = await ValueAddApi.instance.getValueAddSubscriptions(useGroupBy: true);
 
     if (res != null) {
       if (currentPage == 1) {

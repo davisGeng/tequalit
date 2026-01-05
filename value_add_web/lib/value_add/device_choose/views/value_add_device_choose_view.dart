@@ -2,15 +2,15 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:sightsys/app/common/controller/route_view_controller.dart';
-import 'package:sightsys/app/common/widget/basic_button.dart';
-import 'package:sightsys/app/common/widget/empty_view.dart';
-import 'package:sightsys/app/common/widget/loadable_scaffold.dart';
-import 'package:sightsys/app/modules/value_add/device_choose/controllers/value_add_device_choose_controller.dart';
-import 'package:sightsys/app/modules/value_add/widget/value_add_device_choose_card.dart';
 
 import '../../../../../../assets/app_theme.dart';
 import '../../../../../../assets/assets.gen.dart';
+import '../../../common/controller/route_view_controller.dart';
+import '../../../common/widget/basic_button.dart';
+import '../../../common/widget/empty_view.dart';
+import '../../../common/widget/loadable_scaffold.dart';
+import '../../widget/value_add_device_choose_card.dart';
+import '../controllers/value_add_device_choose_controller.dart';
 
 class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
   const ValueAddDeviceChooseView({super.key});

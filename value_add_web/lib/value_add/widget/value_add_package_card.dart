@@ -1,9 +1,9 @@
 import 'package:dart_extensions/dart_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sight_sys_plugin/modules/device/valueAdd/value_add_product_response.dart';
 
-import 'package:sightsys/assets/assets.gen.dart';
+import '../../assets/assets.gen.dart';
+import '../../model/value_add_product_response.dart';
 
 class ValueAddPackageCard extends StatelessWidget {
   final Plans item;

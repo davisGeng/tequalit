@@ -27,3 +27,4 @@ class Log {
     print(message);
   }
 }
+enum FromPageType { valueAddIndex, cloudPlayback, data4gPairing }

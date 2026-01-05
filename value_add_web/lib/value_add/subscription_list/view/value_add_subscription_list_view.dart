@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sightsys/app/modules/value_add/subscription_list/controllers/value_add_subscription_list_controller.dart';
-import 'package:sightsys/app/modules/value_add/widget/value_add_subscription_card.dart';
-import 'package:sightsys/assets/assets.gen.dart';
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:sightsys/app/common/widget/empty_view.dart';
-import 'package:sightsys/app/common/widget/loadable_scaffold.dart';
 
 import '../../../../../../assets/app_theme.dart';
+import '../../../assets/assets.gen.dart';
+import '../../../common/widget/empty_view.dart';
+import '../../../common/widget/loadable_scaffold.dart';
+import '../../widget/value_add_subscription_card.dart';
+import '../controllers/value_add_subscription_list_controller.dart';
 
 class ValueAddSubscriptionListView extends GetView<ValueAddSubscriptionListController> {
   const ValueAddSubscriptionListView({super.key});
