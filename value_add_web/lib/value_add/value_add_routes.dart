@@ -46,7 +46,7 @@ abstract class ValueAddRoutes {
 
 abstract class _ValueAddRouteNames {
   _ValueAddRouteNames._();
-  static const String main = '/value_add_index';
+  static const String main = '/';
 
   static const VALUE_ADD_PACKAGE_CHOOSE = '/cloudServiceChoose';
   static const VALUE_ADD_ORDER_LIST = '/VALUE_ADD_ORDER_LIST';

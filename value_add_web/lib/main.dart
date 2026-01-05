@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:value_add_web/common/utils/js_utils.dart';
 import 'package:value_add_web/routes/routes.dart';
+import 'package:value_add_web/services/app_service.dart';
 import 'package:value_add_web/services/log_service.dart';
 import 'package:value_add_web/services/storage_service.dart';
 
@@ -25,7 +26,6 @@ void main() async{
   // ✅ 1. 初始化SharedPreferences（Dio拦截器中获取Token需要）
   await SharedPreferences.getInstance();
 
-  // ✅ 2. 初始化全局API（融合Dio + VasApi，仅需调用1次）
   ValueAddApi.instance.init("zh");
   runApp(const MyApp());
 }
@@ -74,6 +74,8 @@ final class AppTask {
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
     // await Get.putAsync(() => LogService().init());
+    await Get.putAsync(() => AppService().init());
+
     await Get.putAsync(() => StorageService.instance.init());
   }
 }

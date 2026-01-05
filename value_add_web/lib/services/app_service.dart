@@ -112,7 +112,7 @@ final class AppService extends GetxService with WidgetsBindingObserver {
 
   Future<void> _update() async {
     // await _updatePermissionStatus();
-    await _updateWifiInfo();
+    // await _updateWifiInfo();
   }
 
   Future<void> _updateDeviceInfo() async {
@@ -126,19 +126,6 @@ final class AppService extends GetxService with WidgetsBindingObserver {
   //     // Log.t('${permission.toString()}, status: $status');
   //   }
   // }
-
-  Future<void> _updateWifiInfo() async {
-    final info = NetworkInfo();
-    String ssid = await info.getWifiName() ?? '';
-    if (ssid.startsWith('"')) {
-      ssid = ssid.substring(1);
-    }
-    if (ssid.endsWith('"')) {
-      ssid = ssid.substring(0, ssid.length - 1);
-    }
-    _ssid = ssid;
-    // Log.t('Wi-Fi Name: $_ssid');
-  }
 
 
   Future<void> _checkConnectivity() async {
