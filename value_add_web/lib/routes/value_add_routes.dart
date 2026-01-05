@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:value_add_web/WebPageSecond.dart';
+import 'package:value_add_web/main.dart';
 import 'package:value_add_web/routes/routes.dart';
 
 
@@ -8,16 +9,15 @@ abstract class ValueAddRoutes {
   static GetPage route() {
     return GetPage(
       name: _ValueAddRouteNames.main,
-      page: () => WebPageSecond(),
+      page: () => HomePage(),
       // binding: ValueAddIndexBinding(),
       transition: Transition.fade,
       children: [
-        // GetPage(
-        //   name: _ValueAddRouteNames.VALUE_ADD_PACKAGE_CHOOSE,
-        //   page: () => ValueAddPackageChooseView(),
-        //   binding: ValueAddPackageChooseBinding(),
-        //   transition: Transition.rightToLeft,
-        // ),
+        GetPage(
+          name: "/second",
+          page: () => WebPageSecond(),
+          transition: Transition.rightToLeft,
+        ),
         //
         // GetPage(
         //   name: _ValueAddRouteNames.VALUE_ADD_ORDER_LIST,

@@ -91,13 +91,18 @@ class _HomePageState extends State<HomePage> {
     // 向浏览器window对象挂载JS方法：receiveNativeMessage
     js.context["receiveNativeMessage"] = (String jsonStr) {
       // 解析原生A传来的JSON字符串
-      final Map<String, dynamic> data = json.decode(jsonStr);
-      debugPrint("✅ Web-B收到原生A的消息：$data");
+      // final Map<String, dynamic> data = json.decode(jsonStr);
+      // 原生传参格式：字符串 → 解析为Dart的List<Map<String, dynamic>>
+      List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(json.decode(jsonStr));
+      debugPrint("✅ Web-B收到原生A的消息：${_deviceList.length}");
       // 更新页面UI
       setState(() {
-        _nativeMessage = "A的消息：${data['content']} | 时间：${data['time']}";
+        _nativeMessage = "A的消息：${jsonStr}";
+
+        // _nativeMessage = "A的消息：${data['content']} | 时间：${data['time']}";
       });
     };
+    _sendMessageToNative(type: "ready");
   }
 
   /// 核心2：Web-B → 发送消息到原生A（调用原生注册的通道）
@@ -116,10 +121,15 @@ class _HomePageState extends State<HomePage> {
   //   debugPrint("✅ Web-B已向原生A发送消息：$sendData");
   // }
   /// 【已修复】Web-B → 发送消息到原生A（正确调用原生注册的通道）
-  void _sendMessageToNative() {
+  void _sendMessageToNative({String type = "toast"}) {
+    // ========== ✅ 第一步：检查APP通道是否注册（核心） ==========
+    if (js.context["flutter_app_web_channel"] == null) {
+      debugPrint("❌ 检查失败：APP未注册 flutter_app_web_channel 通道，终止发送");
+      return; // 通道不存在，直接终止方法
+    }
     // 1. 构造消息体（格式不变，与A端约定一致）
     final Map<String, dynamic> sendData = {
-      "type": "toast",
+      "type": type,
       "content": "我是Web-B发来的消息，请求原生显示提示",
       "from": "flutter_web_b",
     };
