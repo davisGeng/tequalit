@@ -31,7 +31,7 @@ class JsUtils {
     }
 
 
-    _registerNativeMessageListener();
+    // _registerNativeMessageListener();
   }
   void _registerNativeMessageListener(){
 

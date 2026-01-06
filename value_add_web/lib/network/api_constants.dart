@@ -1,10 +1,10 @@
 /// 网络请求常量配置
 class ApiConstants {
   /// 环境切换：true-开发环境 / false-生产环境
-  static const bool isDev = false;
+  static const bool isDev = true;
 
   /// 基础域名 - 开发环境
-  static const String devBaseUrl = "https://dev.openapi.sightsyscloud.com/";
+  static const String devBaseUrl = "https://ubuntu-esxi.sightsyscloud.com/";
   /// 基础域名 - 生产环境
   static const String prodBaseUrl = "https://openapi-cn.sightsyscloud.com/";
 

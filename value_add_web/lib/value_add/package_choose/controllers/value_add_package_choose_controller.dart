@@ -21,7 +21,7 @@ import '../../../common/controller/route_view_controller.dart';
 import '../../device_choose/views/value_add_device_choose_view.dart';
 
 class ValueAddPackageChooseController extends RouteViewController
-    with LoadableController, AppServiceObserver {
+    with LoadableController {
   // final CardSwiperController swiperController = CardSwiperController();
 
   final RxList<CloudGoodsBanners> banners = <CloudGoodsBanners>[].obs;
@@ -60,7 +60,7 @@ class ValueAddPackageChooseController extends RouteViewController
 
   @override
   void onInit() {
-    AppService.instance.addObserver(this);
+    // AppService.instance.addObserver(this);
 
     if (Get.arguments != null) {
       String fromType = Get.arguments["fromPageType"] ?? "";
@@ -89,7 +89,7 @@ class ValueAddPackageChooseController extends RouteViewController
 
   @override
   void onClose() {
-    AppService.instance.removeObserver(this);
+    // AppService.instance.removeObserver(this);
 
     super.onClose();
   }
@@ -143,7 +143,6 @@ class ValueAddPackageChooseController extends RouteViewController
   Future<void> _fetchData({bool needRefresh = false}) async {
     plansList.clear();
     if (needRefresh) {
-
       if (fromPageType == FromPageType.valueAddIndex) {
         final response = await ValueAddApi.instance.getProductDetail(productId);
         if (response == null) return;
@@ -152,7 +151,9 @@ class ValueAddPackageChooseController extends RouteViewController
 
         //没有更多了
       } else {
-        final response = await ValueAddApi.instance.getValueAddPlansByDevice(deviceIds);
+        final response = await ValueAddApi.instance.getValueAddPlansByDevice(
+          deviceIds,
+        );
         if (response == null) return;
         if (currentPage == 1) {
           plansList.value = response.items ?? [];
@@ -395,7 +396,6 @@ class ValueAddPackageChooseController extends RouteViewController
     await Future.delayed(Duration(seconds: 2));
     try {
       String paymentChannel = suborderResponse?.paymentChannel ?? "";
-
     } catch (e) {
       stopLoading();
     } finally {

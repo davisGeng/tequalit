@@ -9,14 +9,14 @@ import '../../../common/widget/empty_view.dart';
 import '../../../services/log_service.dart';
 import '../../value_add_routes.dart';
 import '../../widget/value_service_card.dart';
-import '../controllers/value_add_index_controller.dart';
+import '../controllers/value_add_index_controller2.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import '../../../../../assets/assets.gen.dart';
 import '../../../../common/controller/route_view_controller.dart';
 
 ///
-class ValueAddIndexView extends GetView<ValueAddIndexController> {
-  ValueAddIndexView({Key? key}) : super(key: key) {}
+class ValueAddIndexView2 extends GetView<ValueAddIndexController2> {
+  ValueAddIndexView2({Key? key}) : super(key: key) {}
 
   @override
   Widget build(BuildContext context) {
@@ -83,45 +83,29 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
       // 隐藏左侧默认返回键（适用于首页）
       automaticallyImplyLeading: false,
 
-      title: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        width: double.infinity, // 占满可用宽度
-        child: Row(
-          children: [
-            // 左侧图标
-            Obx(() {
-              if (controller.fromPageType.value != FromPageType.valueAddIndex) {
-                return Icon(
-                      Platform.isAndroid
-                          ? Icons.arrow_back
-                          : Icons.arrow_back_ios,
-                      color: Colors.black,
-                      size: 24,
-                    )
-                    .onTap(() {
-                      Get.back();
-                    })
-                    .marginOnly(right: 8);
-              }
-              return SizedBox();
-            }),
+      title: Text("title"),
 
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'services_page_title'.tr,
-                    style: AppTheme.current.textStyles.title0,
-                  ),
-                  _buildRightBtn(context),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-
+      // Container(
+      //   padding: EdgeInsets.symmetric(horizontal: 10),
+      //   width: double.infinity, // 占满可用宽度
+      //   child: Row(
+      //     children: [
+      //       // 左侧图标
+      //       Expanded(
+      //         child: Row(
+      //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //           children: [
+      //             Text(
+      //               'services_page_title'.tr,
+      //               style: AppTheme.current.textStyles.title0,
+      //             ),
+      //             _buildRightBtn(context),
+      //           ],
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
       centerTitle: true,
       backgroundColor: AppTheme.current.colors.inverseBackground,
     );

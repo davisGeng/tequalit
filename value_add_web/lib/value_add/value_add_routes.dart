@@ -1,4 +1,8 @@
 import 'package:get/get.dart';
+import 'package:value_add_web/WebPageSecond.dart';
+import 'package:value_add_web/main.dart';
+import 'package:value_add_web/value_add/index_2/bindings/value_add_index_binding2.dart';
+import 'package:value_add_web/value_add/index_2/views/value_add_index_view2.dart';
 import 'package:value_add_web/value_add/package_choose/bindings/value_add_package_choose_binding.dart';
 import 'package:value_add_web/value_add/package_choose/views/value_add_package_choose_view.dart';
 import 'package:value_add_web/value_add/subscription_list/bindings/value_add_subscription_list_binding.dart';
@@ -18,16 +22,17 @@ abstract class ValueAddRoutes {
       transition: Transition.fade,
       children: [
         GetPage(
-          name: _ValueAddRouteNames.VALUE_ADD_PACKAGE_CHOOSE,
+          name: _ValueAddRouteNames.valueAddPackageChoose,
           page: () => ValueAddPackageChooseView(),
           binding: ValueAddPackageChooseBinding(),
-          transition: Transition.rightToLeft,
+          transition: Transition.fade,
         ),
 
         GetPage(
-          name: _ValueAddRouteNames.VALUE_ADD_ORDER_LIST,
+          name: _ValueAddRouteNames.valueAddOrderList,
           page: () => const ValueAddOrderListView(),
           binding: ValueAddOrderListBinding(),
+          transition: Transition.fade,
         ),
         // GetPage(
         //   name: _ValueAddRouteNames.CLOUD_SERVICE_ORDER_BUY,
@@ -35,32 +40,50 @@ abstract class ValueAddRoutes {
         //   binding: CloudServiceOrderBuyBinding(),
         // ),
         GetPage(
-          name: _ValueAddRouteNames.VALUE_ADD_SUBSCRIPTION_LIST,
+          name: _ValueAddRouteNames.valueAddSubscriptionList,
           page: () => const ValueAddSubscriptionListView(),
           binding: ValueAddSubscriptionListBinding(),
+          transition: Transition.fade,
+        ),
+        GetPage(
+          name: _ValueAddRouteNames.valueAddTest2,
+          page: () => ValueAddIndexView2(),
+          binding: ValueAddIndexBinding2(),
+          transition: Transition.fade,
         ),
       ],
     );
   }
 }
 
+// 1. 父路由名称改为独立模块路径（避免和全局'/'冲突）
 abstract class _ValueAddRouteNames {
   _ValueAddRouteNames._();
-  static const String main = '/';
+  // 父路由：独立模块路径（Web端URL前缀）
+  static const String main = '/value-add';
 
-  static const VALUE_ADD_PACKAGE_CHOOSE = '/cloudServiceChoose';
-  static const VALUE_ADD_ORDER_LIST = '/VALUE_ADD_ORDER_LIST';
-  static const CLOUD_SERVICE_ORDER_BUY = '/cloud-service-order-buy';
-  static const VALUE_ADD_CHOOSE_DEVICE = '/VALUE_ADD_CHOOSE_DEVICE';
-  static const VALUE_ADD_SUBSCRIPTION_LIST = '/VALUE_ADD_SUBSCRIPTION_LIST';
+  // 子路由：小写+短横线（符合Web URL规范）
+  static const valueAddPackageChoose = '/cloud-service-choose';
+  static const valueAddOrderList = '/value-add-order-list';
+  static const valueAddChooseDevice = '/value-add-choose-device';
+  static const valueAddSubscriptionList = '/value-add-subscription-list';
+  static const valueAddTest2 = '/value-add-test2';
 }
 
+// 2. 路径拼接（避免双斜杠）
 abstract class ValueAddPaths {
   static const String main = _ValueAddRouteNames.main;
 
-  static const VALUE_ADD_PACKAGE_CHOOSE = _ValueAddRouteNames.main + _ValueAddRouteNames.VALUE_ADD_PACKAGE_CHOOSE;
-  static const VALUE_ADD_ORDER_LIST = _ValueAddRouteNames.main + _ValueAddRouteNames.VALUE_ADD_ORDER_LIST;
-  static const CLOUD_SERVICE_ORDER_BUY = _ValueAddRouteNames.main + _ValueAddRouteNames.CLOUD_SERVICE_ORDER_BUY;
-  static const VALUE_ADD_CHOOSE_DEVICE = _ValueAddRouteNames.main + _ValueAddRouteNames.VALUE_ADD_CHOOSE_DEVICE;
-  static const VALUE_ADD_SUBSCRIPTION_LIST = _ValueAddRouteNames.main + _ValueAddRouteNames.VALUE_ADD_SUBSCRIPTION_LIST;
+  // 拼接父路由+子路由（此时路径为：/value-add/cloud-service-choose）
+  static const valueAddPackageChoose =
+      '${_ValueAddRouteNames.main}${_ValueAddRouteNames.valueAddPackageChoose}';
+  static const valueAddOrderList =
+      '${_ValueAddRouteNames.main}${_ValueAddRouteNames.valueAddOrderList}';
+  // 其他子路由同理...
+  static const valueAddChooseDevice =
+      '${_ValueAddRouteNames.main}${_ValueAddRouteNames.valueAddChooseDevice}';
+  static const valueAddSubscriptionList =
+      '${_ValueAddRouteNames.main}${_ValueAddRouteNames.valueAddSubscriptionList}';
+  static const valueAddTest2 =
+      '${_ValueAddRouteNames.main}${_ValueAddRouteNames.valueAddTest2}';
 }

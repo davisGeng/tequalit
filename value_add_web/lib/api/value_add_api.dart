@@ -32,22 +32,17 @@ class ValueAddApi {
   }) async {
     try {
       final args = {
-        'type': productType,
+        // 'type': productType,
         "limit": pageSize,
         "offset": (page - 1)*pageSize,
-        "supplier": supplier,
+        // "supplier": supplier,
         // "filterCountry": filterCountry,
-        "coverage_mode": coverageMode,
-        "region_type": regionType,
+        // "coverage_mode": coverageMode,
+        // "region_type": regionType,
         // "language": _language,
       };
-      String response = await dioHttp.get("/api/v1/vas/products/",params: args);
-      if (response.isEmpty) {
-        return null;
-      }
-      ValueAddProductResponse model = ValueAddProductResponse.fromJson(
-        json.decode(response),
-      );
+      final response = await dioHttp.get("/api/v1/vas/products",params: args);
+      ValueAddProductResponse model = ValueAddProductResponse.fromJson(response as Map<String, dynamic>);
       return model;
     } catch (e) {
       throw Exception("Failed to getProductlist : $e");
@@ -60,13 +55,8 @@ class ValueAddApi {
       final url = "/api/v1/vas/products/$productId";
       // 2. Query参数：只保留非路径参数（比如language）
       final queryParams = {"language": _language};
-      String response = await dioHttp.get(url,params: queryParams);
-      if (response.isEmpty) {
-        return null;
-      }
-      ValueAddProductItem model = ValueAddProductItem.fromJson(
-        json.decode(response),
-      );
+      final response = await dioHttp.get(url,params: queryParams);
+      ValueAddProductItem model = ValueAddProductItem.fromJson(response as Map<String, dynamic>);
       return model;
     } catch (e) {
       throw Exception("Failed to getProductDetail : $e");

@@ -66,7 +66,7 @@ class ValueAddPackageChooseView
           ),
           onPressed: () async {
             await Get.toNamed(
-              ValueAddPaths.VALUE_ADD_ORDER_LIST,
+              ValueAddPaths.valueAddOrderList,
               arguments: {'productType': controller.productType},
             );
           },
@@ -78,11 +78,13 @@ class ValueAddPackageChooseView
   Widget _buildBody(BuildContext context) {
     return Obx(() {
       Widget _banner;
-      if (controller.banners.isEmpty) {
-        _banner = SizedBox();
-      } else {
-        _banner = _buildBannerView(context);
-      }
+      _banner = SizedBox();
+
+      // if (controller.banners.isEmpty) {
+      //   _banner = SizedBox();
+      // } else {
+      //   _banner = _buildBannerView(context);
+      // }
       Widget _bottomView;
       if (controller.plansList.isEmpty) {
         _bottomView = SizedBox();
@@ -108,19 +110,21 @@ class ValueAddPackageChooseView
         );
       } else if (controller.plansList.isEmpty &&
           controller.loadState.value.isSuccess) {
-        return Column(children: [
-          Expanded(
-            child: EmptyView(
-              description: 'no_available_plans_label'.tr,
-              topImage: Assets.images.imgDeviceConnectEmpty.image(
-                width: 150,
-                height: 150,
+        return Column(
+          children: [
+            Expanded(
+              child: EmptyView(
+                description: 'no_available_plans_label'.tr,
+                topImage: Assets.images.imgDeviceConnectEmpty.image(
+                  width: 150,
+                  height: 150,
+                ),
+                showBtn: false,
               ),
-              showBtn: false,
             ),
-          ),
-          _bottomView
-        ],);
+            _bottomView,
+          ],
+        );
       }
       return Column(
         children: [Expanded(child: _buildList(context, _banner)), _bottomView],
@@ -131,37 +135,37 @@ class ValueAddPackageChooseView
   Widget _buildList(BuildContext context, Widget banner) {
     // return Obx(() {
 
-      List<Widget> widgets = [];
-      widgets.add(banner);
+    List<Widget> widgets = [];
+    widgets.add(banner);
 
-      for (int index = 0; index < controller.plansList.length; index++) {
-        if (controller.productType.equalsIgnoreCase("4G_DATA")) {
-          widgets.add(
-            ValueAdd4gPackageCard(
-              parentIndex: index,
-              parentIsLast: index == controller.plansList.length - 1,
-              selectPlanTag: controller.selectPlanTag.value,
-              item: controller.plansList[index],
-              onTapArrow: (value) {
-                controller.updateSelectPlanTag(value);
-              },
-            ),
-          );
-        } else {
-          widgets.add(
-            ValueAddPackageCard(
-              parentIndex: index,
-              parentIsLast: index == controller.plansList.length - 1,
-              selectPlanTag: controller.selectPlanTag.value,
-              item: controller.plansList[index],
-              onTapArrow: (value) {
-                controller.updateSelectPlanTag(value);
-              },
-            ),
-          );
-        }
+    for (int index = 0; index < controller.plansList.length; index++) {
+      if (controller.productType.equalsIgnoreCase("4G_DATA")) {
+        widgets.add(
+          ValueAdd4gPackageCard(
+            parentIndex: index,
+            parentIsLast: index == controller.plansList.length - 1,
+            selectPlanTag: controller.selectPlanTag.value,
+            item: controller.plansList[index],
+            onTapArrow: (value) {
+              controller.updateSelectPlanTag(value);
+            },
+          ),
+        );
+      } else {
+        widgets.add(
+          ValueAddPackageCard(
+            parentIndex: index,
+            parentIsLast: index == controller.plansList.length - 1,
+            selectPlanTag: controller.selectPlanTag.value,
+            item: controller.plansList[index],
+            onTapArrow: (value) {
+              controller.updateSelectPlanTag(value);
+            },
+          ),
+        );
       }
-      return ListView(children: widgets);
+    }
+    return ListView(children: widgets);
     // });
   }
 
@@ -174,7 +178,7 @@ class ValueAddPackageChooseView
           padding: EdgeInsets.only(left: 24, right: 24),
           width: double.maxFinite,
           height: 188,
-          child: Text("data")
+          child: Text("data"),
           // CardSwiper(
           //   controller: controller.swiperController,
           //   cardsCount:

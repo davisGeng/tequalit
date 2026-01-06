@@ -1,3 +1,4 @@
+import './value_add/value_add_routes.dart';
 import 'dart:convert';
 import 'dart:js' as js;
 import 'package:flutter/material.dart';
@@ -18,13 +19,14 @@ import 'assets/app_theme.dart';
 import 'common/utils/app_translations.dart';
 import 'common/utils/language_manager.dart';
 
-void main() async{
+void main() async {
   await AppTask.init();
   JsUtils.instance.init();
   WidgetsFlutterBinding.ensureInitialized();
 
   // ✅ 1. 初始化SharedPreferences（Dio拦截器中获取Token需要）
-  await SharedPreferences.getInstance();
+  final sp = await SharedPreferences.getInstance();
+  sp.setString("token", "625397a3dce094dc3c8f0db723a158f911ce0ff0");
 
   ValueAddApi.instance.init("zh");
   runApp(const MyApp());
@@ -38,15 +40,23 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'SightSys',
       theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.white, primary: AppTheme.current.colors.main),
-          useMaterial3: true),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.white,
+          primary: AppTheme.current.colors.main,
+        ),
+        useMaterial3: true,
+      ),
       getPages: [
-        ...Routes.routes,
+        // 增值服务
+        ValueAddRoutes.route(),
       ],
-      initialRoute: Routes.initial,
+      // [...Routes.routes],
+      initialRoute: ValueAddPaths.main,
       translations: AppTranslations(),
-      locale:LanguageManager.instance.newLocale ?? LanguageManager.instance.getDefaultLocale(),
-      localizationsDelegates:  [
+      locale:
+          LanguageManager.instance.newLocale ??
+          LanguageManager.instance.getDefaultLocale(),
+      localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
@@ -70,6 +80,7 @@ class MyApp extends StatelessWidget {
     // );
   }
 }
+
 final class AppTask {
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -79,6 +90,7 @@ final class AppTask {
     await Get.putAsync(() => StorageService.instance.init());
   }
 }
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -104,7 +116,9 @@ class _HomePageState extends State<HomePage> {
       // 解析原生A传来的JSON字符串
       // final Map<String, dynamic> data = json.decode(jsonStr);
       // 原生传参格式：字符串 → 解析为Dart的List<Map<String, dynamic>>
-      List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(json.decode(jsonStr));
+      List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(
+        json.decode(jsonStr),
+      );
       debugPrint("✅ Web-B收到原生A的消息：${_deviceList.length}");
       // 更新页面UI
       setState(() {
@@ -188,7 +202,9 @@ class _HomePageState extends State<HomePage> {
               ElevatedButton(
                 onPressed: _sendMessageToNative,
                 child: const Text("Web-B → 发送消息到原生A"),
-                style: ElevatedButton.styleFrom(minimumSize: const Size(300, 50)),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(300, 50),
+                ),
               ),
               const SizedBox(height: 20),
               // Web→返回原生 按钮（核心）
@@ -202,22 +218,18 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               ElevatedButton(
-                onPressed: (){
-                  Get.toNamed("/second"); // 跳转到/#/second
+                onPressed: () {
+                  // Get.toNamed("/second"); // 跳转到/#/second
 
-                  // Get.to(
-                  //       () => Webtoreatcts(),
-                  // );
-
+                  Get.to(() => WebPageSecond());
                 },
                 child: const Text("跳转到page B"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(300, 50),
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  )
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(300, 50),
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
               ),
-
             ],
           ),
         ),

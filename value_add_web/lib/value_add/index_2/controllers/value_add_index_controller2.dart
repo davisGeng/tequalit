@@ -1,12 +1,7 @@
 import 'dart:convert';
 
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:value_add_web/WebPageSecond.dart';
-import 'package:value_add_web/value_add/index_2/bindings/value_add_index_binding2.dart';
-import 'package:value_add_web/value_add/index_2/controllers/value_add_index_controller2.dart';
-import 'package:value_add_web/value_add/index_2/views/value_add_index_view2.dart';
 
 import '../../../api/value_add_api.dart';
 import '../../../common/controller/route_view_controller.dart';
@@ -15,7 +10,7 @@ import '../../../model/value_add_product_response.dart';
 import '../../../services/log_service.dart';
 import '../../value_add_routes.dart';
 
-class ValueAddIndexController extends RouteViewController {
+class ValueAddIndexController2 extends RouteViewController {
   // 翻页数据
   int currentPage = 1;
   final int pageSize = 10;
@@ -87,28 +82,31 @@ class ValueAddIndexController extends RouteViewController {
   }
 
   Future<void> _fetchData() async {
-    await Future.delayed(Duration(seconds: 1));
-    ValueAddProductResponse? response = await ValueAddApi.instance
-        .getProductList(
-          filterCountry: false,
-          // productType: "CLOUD_STORAGE",
-          page: currentPage,
-          pageSize: pageSize,
-        );
-    if (response != null) {
-      List<ValueAddProductItem> subItems = response.items ?? [];
-      if (currentPage == 1) {
-        productItems.value = subItems;
-      } else {
-        productItems.addAll(subItems);
-      }
+    final response2 = await ValueAddApi.instance.getProductDetail(
+      "prod_bundle",
+    );
+    // await Future.delayed(Duration(seconds: 1));
+    // ValueAddProductResponse? response = await ValueAddApi.instance
+    //     .getProductList(
+    //       filterCountry: false,
+    //       // productType: "CLOUD_STORAGE",
+    //       page: currentPage,
+    //       pageSize: pageSize,
+    //     );
+    // if (response != null) {
+    //   List<ValueAddProductItem> subItems = response.items ?? [];
+    //   if (currentPage == 1) {
+    //     productItems.value = subItems;
+    //   } else {
+    //     productItems.addAll(subItems);
+    //   }
 
-      if (response.pagination?.hasNext == true) {
-        isMoreDataAvailable.value = true;
-      } else {
-        isMoreDataAvailable.value = false;
-      }
-    }
+    //   if (response.pagination?.hasNext == true) {
+    //     isMoreDataAvailable.value = true;
+    //   } else {
+    //     isMoreDataAvailable.value = false;
+    //   }
+    // }
   }
 
   Future<void> loadMore() async {
@@ -134,22 +132,11 @@ class ValueAddIndexController extends RouteViewController {
 
   clickArrow(ValueAddProductItem item) {
     Get.toNamed(
-      ValueAddPaths.valueAddPackageChoose,
+      ValueAddPaths.valueAddTest2,
       arguments: {
         "fromPageType": FromPageType.valueAddIndex.name,
         "productId": item.productId,
       },
     );
-    // Get.to(
-    //   ValueAddIndexView2(),
-    //   binding: BindingsBuilder(() {
-    //     // 注册控制器并传递参数
-    //     Get.lazyPut(() => ValueAddIndexController2());
-    //   }),
-    // );
-    // Get.toNamed(
-    //   ValueAddPaths.valueAddTest2,
-    //   // arguments: {"fromPageType": FromPageType.valueAddIndex.name, "productId": item.productId},
-    // );
   }
 }
