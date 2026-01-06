@@ -36,6 +36,8 @@ class ValueAddSubscriptionListView extends GetView<ValueAddSubscriptionListContr
       centerTitle: true,
       backgroundColor: Colors.white,
       actions: <Widget>[],
+      scrolledUnderElevation: 0,
+
     );
   }
 

@@ -26,7 +26,7 @@ class ValueAddPackageChooseView
 
       child: LoadableScaffold(
         appBar: _buildAppBar(context),
-        isWrapSafeArea: true,
+        isWrapSafeArea: false,
         backgroundColor: Colors.white,
         bottomSafeAreaBackgroundColor: Colors.white,
 
@@ -72,6 +72,8 @@ class ValueAddPackageChooseView
           },
         ).marginOnly(right: 10),
       ],
+      scrolledUnderElevation: 0,
+
     );
   }
 

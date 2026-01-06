@@ -64,20 +64,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: LanguageManager.instance.getSupportedLocales(),
       builder: EasyLoading.init(),
     );
-    // return GetMaterialApp(
-    //   title: 'Flutter Web-B',
-    //   theme: ThemeData(primarySwatch: Colors.green),
-    //   // home: const HomePage(),
-    //   debugShowCheckedModeBanner: false,
-    //   initialRoute: "/", // 首页路由
-    //   // ✅ 原生路由注册，key对应#后的路径
-    //   routes: {
-    //     "/": (context) => const HomePage(), // 首页 → /#/
-    //     "/second": (context) => const WebPageSecond(), // 第二个页面 → /#/second
-    //     "/third": (context) => const Webtoreatcts(), // 第三个页面 → /#/third
-    //
-    //   },
-    // );
+
   }
 }
 
@@ -114,8 +101,16 @@ class _HomePageState extends State<HomePage> {
     // 向浏览器window对象挂载JS方法：receiveNativeMessage
     js.context["receiveNativeMessage"] = (String jsonStr) {
       // 解析原生A传来的JSON字符串
-      // final Map<String, dynamic> data = json.decode(jsonStr);
-      // 原生传参格式：字符串 → 解析为Dart的List<Map<String, dynamic>>
+      final Map<String, dynamic> data = json.decode(jsonStr);
+      debugPrint("✅ Web-B收到原生A的消息：$data");
+      // 更新页面UI
+      setState(() {
+        _nativeMessage = "A的消息：${jsonStr}";
+
+      });
+    };
+    js.context["receiveNativeDeviceList"] = (String jsonStr) {
+      // 解析原生A传来的JSON字符串
       List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(
         json.decode(jsonStr),
       );
@@ -123,28 +118,12 @@ class _HomePageState extends State<HomePage> {
       // 更新页面UI
       setState(() {
         _nativeMessage = "A的消息：${jsonStr}";
-
-        // _nativeMessage = "A的消息：${data['content']} | 时间：${data['time']}";
       });
     };
     _sendMessageToNative(type: "ready");
   }
 
-  /// 核心2：Web-B → 发送消息到原生A（调用原生注册的通道）
-  // void _sendMessageToNative() {
-  //   // 构造消息体（JSON格式，与A端约定一致）
-  //   final Map<String, dynamic> sendData = {
-  //     "type": "toast",
-  //     "content": "我是Web-B发来的消息，请求原生显示提示",
-  //     "from": "flutter_web_b",
-  //   };
-  //   // 通过原生注册的通道，发送JSON字符串
-  //   js.context.callMethod(
-  //     "flutter_app_web_channel.postMessage", // 通道名必须与A端一致
-  //     [json.encode(sendData)],
-  //   );
-  //   debugPrint("✅ Web-B已向原生A发送消息：$sendData");
-  // }
+
   /// 【已修复】Web-B → 发送消息到原生A（正确调用原生注册的通道）
   void _sendMessageToNative({String type = "toast"}) {
     // ========== ✅ 第一步：检查APP通道是否注册（核心） ==========

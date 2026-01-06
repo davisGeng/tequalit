@@ -23,8 +23,10 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
     return RouteView(
       controller: controller,
       child: LoadableScaffold(
+
         body: _buidBody(context),
         appBar: _buildAppBar(context),
+        isWrapSafeArea: false,
         backgroundColor: AppTheme.current.colors.inverseBackground,
       ),
       // BuildBaseWidget.buildScaffold(
@@ -123,6 +125,7 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
       ),
 
       centerTitle: true,
+      scrolledUnderElevation: 0,
       backgroundColor: AppTheme.current.colors.inverseBackground,
     );
   }

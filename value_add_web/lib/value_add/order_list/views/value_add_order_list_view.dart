@@ -35,6 +35,8 @@ class ValueAddOrderListView extends GetView<ValueAddOrderListController> {
       centerTitle: true,
       backgroundColor: Colors.white,
       actions: <Widget>[],
+      scrolledUnderElevation: 0,
+
     );
   }
 

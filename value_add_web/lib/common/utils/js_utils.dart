@@ -14,6 +14,9 @@ class JsUtils {
   static JsUtils get instance => _instance;
 
   int deviceCount = 0;
+  String token = "";
+  bool hadUpdateDevice = false;
+  List<Map<String,dynamic>> deviceMaps = [];
   /// 从URL参数中解析Locale，无参数返回null
   void init(){
 
@@ -23,70 +26,68 @@ class JsUtils {
       String languageCode = WebParamParser.getParam("languageCode") ?? "";
       String countryCode = urlParams['countryCode'] ?? "";
       String scriptCode = urlParams['scriptCode'] ?? "";
+      token = urlParams['userToken'] ?? "";
+
       if(languageCode.isNotEmpty){
         LanguageManager.instance.updateLocale(languageCode,countryCode: countryCode,scriptCode: scriptCode);
       }
-
-
     }
-
-
-    // _registerNativeMessageListener();
+    _registerNativeMessageListener();
   }
-  void _registerNativeMessageListener(){
 
+
+  /// 核心1：注册JS全局方法，供原生A调用（接收A的消息）
+  void _registerNativeMessageListener() {
     // 向浏览器window对象挂载JS方法：receiveNativeMessage
     js.context["receiveNativeMessage"] = (String jsonStr) {
-      debugPrint("✅ Web-收到原生App的消息jsonStr：$jsonStr");
-
-      if(jsonStr.isNotEmpty){
-        // 解析原生A传来的JSON字符串
-        final Map<String, dynamic> data = json.decode(jsonStr);
-        debugPrint("✅ Web-收到原生App的消息：$data");
-
-        String languageCode = data['languageCode'] ?? "";
-        String countryCode = data['countryCode'] ?? "";
-        String scriptCode = data['scriptCode'] ?? "";
-        print("pare not null:lanCode:${languageCode}");
-
-        if(languageCode.isNotEmpty){
-          LanguageManager.instance.updateLocale(languageCode,countryCode: countryCode,scriptCode: scriptCode);
-        }
-
-      }
-
+      // 解析原生A传来的JSON字符串
+      final Map<String, dynamic> data = json.decode(jsonStr);
+      debugPrint("✅ Web-B收到原生A的消息：$data");
 
     };
+    js.context["receiveNativeDeviceList"] = (String jsonStr) {
+      // 解析原生A传来的JSON字符串
+      List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(
+        json.decode(jsonStr),
+      );
+      debugPrint("✅ Web-B收到原生A的消息：${_deviceList.length}");
+    };
+    sendMessageToNative(type: "ready");
   }
-  //  Locale parseLocaleFromUrl() {
-  //   // 1. 获取Web端当前URL的所有查询参数
-  //   final queryParams = html.window.location.search;
-  //   Log.d("parseLocal form App url:$queryParams");
-  //   print("pare null ::${queryParams}");
-  //
-  //   if (queryParams == null){
-  //     Locale? deviceLocale = Get.deviceLocale;
-  //     Log.d("parseLocal form deviceLocal :${deviceLocale?.languageCode}");
-  //
-  //     if (deviceLocale == null) {
-  //       return const Locale("en", "US");
-  //     }else{
-  //       return deviceLocale;
-  //     }
-  //   }else{
-  //
-  //     // 2. 解析locale参数值（如：?locale=zh_CN → zh_CN）
-  //     final params = Uri.parse(queryParams).queryParameters;
-  //     final languageCode = params['languageCode'] ?? "";
-  //     final countryCode = params['countryCode'] ?? "";
-  //     final scriptCode = params['scriptCode'] ?? "";
-  //     print("pare not null:lanCode:${languageCode}");
-  //
-  //     Locale backLocale = LanguageManager.instance.getDeviceLocale(languageCode,countryCode: countryCode,scriptCode: scriptCode);
-  //     return backLocale;
-  //   }
-  //
-  // }
+
+
+  /// 【已修复】Web-B → 发送消息到原生A（正确调用原生注册的通道）
+  void sendMessageToNative({String type = "toast"}) {
+    // ========== ✅ 第一步：检查APP通道是否注册（核心） ==========
+    if (js.context["flutter_app_web_channel"] == null) {
+      debugPrint("❌ 检查失败：APP未注册 flutter_app_web_channel 通道，终止发送");
+      return; // 通道不存在，直接终止方法
+    }
+    // 1. 构造消息体（格式不变，与A端约定一致）
+    final Map<String, dynamic> sendData = {
+      "type": type,
+      "content": "我是Web-B发来的消息，请求原生显示提示",
+      "from": "flutter_web_b",
+    };
+    String jsonStr = json.encode(sendData);
+
+    // ✅ 正确写法（分两步调用：先获取通道对象，再调用postMessage）
+    js.JsObject channel = js.context["flutter_app_web_channel"];
+    channel.callMethod("postMessage", [jsonStr]);
+
+    debugPrint("✅ Web-B已向原生A发送消息：$sendData");
+  }
+
+  /// 核心3：Web-B 一键返回原生A（URL Scheme协议跳转，最优方案）
+  void backToNativeApp() {
+    debugPrint("🚀 Web-B触发返回原生A");
+    // 调用浏览器JS，跳转自定义Scheme协议（A端会拦截该请求）
+    js.context.callMethod("open", ["flutterapp://backToNative"]);
+    // 进阶：带参数返回 → flutterapp://backToNative?params={"id":123,"name":"test"}
+    // js.context.callMethod("open", ["flutterapp://backToNative?params=${Uri.encodeComponent(json.encode({"id":123}))}"]);
+  }
+
+
 }
 
 class WebParamParser {
