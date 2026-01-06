@@ -1,8 +1,4 @@
 import 'package:get/get.dart';
-import 'package:value_add_web/WebPageSecond.dart';
-import 'package:value_add_web/main.dart';
-import 'package:value_add_web/value_add/index_2/bindings/value_add_index_binding2.dart';
-import 'package:value_add_web/value_add/index_2/views/value_add_index_view2.dart';
 import 'package:value_add_web/value_add/package_choose/bindings/value_add_package_choose_binding.dart';
 import 'package:value_add_web/value_add/package_choose/views/value_add_package_choose_view.dart';
 import 'package:value_add_web/value_add/subscription_list/bindings/value_add_subscription_list_binding.dart';
@@ -45,12 +41,6 @@ abstract class ValueAddRoutes {
           binding: ValueAddSubscriptionListBinding(),
           transition: Transition.fade,
         ),
-        GetPage(
-          name: _ValueAddRouteNames.valueAddTest2,
-          page: () => ValueAddIndexView2(),
-          binding: ValueAddIndexBinding2(),
-          transition: Transition.fade,
-        ),
       ],
     );
   }
@@ -67,7 +57,6 @@ abstract class _ValueAddRouteNames {
   static const valueAddOrderList = '/value-add-order-list';
   static const valueAddChooseDevice = '/value-add-choose-device';
   static const valueAddSubscriptionList = '/value-add-subscription-list';
-  static const valueAddTest2 = '/value-add-test2';
 }
 
 // 2. 路径拼接（避免双斜杠）
@@ -84,6 +73,4 @@ abstract class ValueAddPaths {
       '${_ValueAddRouteNames.main}${_ValueAddRouteNames.valueAddChooseDevice}';
   static const valueAddSubscriptionList =
       '${_ValueAddRouteNames.main}${_ValueAddRouteNames.valueAddSubscriptionList}';
-  static const valueAddTest2 =
-      '${_ValueAddRouteNames.main}${_ValueAddRouteNames.valueAddTest2}';
 }

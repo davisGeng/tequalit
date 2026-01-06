@@ -7,7 +7,6 @@ import '../model/value_add_order_list_response.dart';
 import '../model/value_add_product_response.dart';
 import '../model/value_add_subscription_list_response.dart';
 import '../model/value_add_support_device_plans_response.dart';
-import '../network/api_exception.dart';
 import '../network/dio_http_util.dart';
 
 /// 示例：增值服务模块接口
@@ -21,6 +20,7 @@ class ValueAddApi {
     // 核心：将DioHttpUtil的全局Dio传入VasApi，完成融合
     _language = language;
   }
+
   Future<ValueAddProductResponse?> getProductList({
     String productType = "",
     int pageSize = 20,
@@ -34,15 +34,17 @@ class ValueAddApi {
       final args = {
         // 'type': productType,
         "limit": pageSize,
-        "offset": (page - 1)*pageSize,
+        "offset": (page - 1) * pageSize,
         // "supplier": supplier,
         // "filterCountry": filterCountry,
         // "coverage_mode": coverageMode,
         // "region_type": regionType,
         // "language": _language,
       };
-      final response = await dioHttp.get("/api/v1/vas/products",params: args);
-      ValueAddProductResponse model = ValueAddProductResponse.fromJson(response as Map<String, dynamic>);
+      final response = await dioHttp.get("/api/v1/vas/products", params: args);
+      ValueAddProductResponse model = ValueAddProductResponse.fromJson(
+        response as Map<String, dynamic>,
+      );
       return model;
     } catch (e) {
       throw Exception("Failed to getProductlist : $e");
@@ -55,8 +57,10 @@ class ValueAddApi {
       final url = "/api/v1/vas/products/$productId";
       // 2. Query参数：只保留非路径参数（比如language）
       final queryParams = {"language": _language};
-      final response = await dioHttp.get(url,params: queryParams);
-      ValueAddProductItem model = ValueAddProductItem.fromJson(response as Map<String, dynamic>);
+      final response = await dioHttp.get(url, params: queryParams);
+      ValueAddProductItem model = ValueAddProductItem.fromJson(
+        response as Map<String, dynamic>,
+      );
       return model;
     } catch (e) {
       throw Exception("Failed to getProductDetail : $e");
@@ -75,7 +79,7 @@ class ValueAddApi {
     try {
       Map<String, Object> param = <String, Object>{};
 
-// 2. 非空判断后赋值，与Java逻辑完全一致
+      // 2. 非空判断后赋值，与Java逻辑完全一致
       if (couponCode.isNotEmpty) {
         param["coupon_code"] = couponCode;
       }
@@ -92,32 +96,30 @@ class ValueAddApi {
         param["price_id"] = priceId;
       }
 
-// 3. 必传参数：无条件赋值（与Java一致）
+      // 3. 必传参数：无条件赋值（与Java一致）
       param["quantity"] = quantity;
-      Map<String,Object> metaMap = {};
-      if(source.isNotEmpty){
+      Map<String, Object> metaMap = {};
+      if (source.isNotEmpty) {
         metaMap['source'] = source;
       }
-      if(iccid.isNotEmpty){
+      if (iccid.isNotEmpty) {
         metaMap['iccid'] = iccid;
       }
       if (metaMap.isNotEmpty) {
         param["metadata"] = metaMap;
       }
 
+      final response = await dioHttp.post("/api/v1/vas/orders/", data: param);
 
-      String response = await dioHttp.post("/api/v1/vas/orders/",data: param);
-      if (response.isEmpty) {
-        return null;
-      }
       ValueAddCreateOrderResponse model = ValueAddCreateOrderResponse.fromJson(
-        json.decode(response),
+        response as Map<String, dynamic>,
       );
       return model;
     } catch (e) {
       throw Exception("Failed to createOrder : $e");
     }
   }
+
   //
   // Future<ValueAddOrderStatus?> checkOrderStatus(
   //     String orderNumber, {
@@ -170,8 +172,8 @@ class ValueAddApi {
     String version = "v2",
   }) async {
     try {
-      final args = {
-        'offset': (page -1)*pageSize,
+      Map<String, dynamic> args = {
+        'offset': (page - 1) * pageSize,
         'limit': pageSize,
         'order_number': orderNumber,
         'status': status,
@@ -180,8 +182,6 @@ class ValueAddApi {
         'device_id': deviceId,
         'created_after': createTimeAfter,
         'created_before': createTimeBefore,
-        'min_amount': minAmount,
-        'max_amount': maxAmount,
         'product_type': productType,
         'product_id': productId,
         'plan_id': planId,
@@ -189,15 +189,17 @@ class ValueAddApi {
         'ordering': ordering,
         'version': version,
       };
-
-      String response = await dioHttp.get("/api/v1/vas/orders/",params: args);
-      if (response.isEmpty) {
-        return null;
+      if (minAmount >= 0) {
+        args["min_amount"] = minAmount;
       }
-      ValueAddOrderListResponse? result = ValueAddOrderListResponse.fromJson(
-        json.decode(response),
+      if (maxAmount >= 0) {
+        args["max_amount"] = maxAmount;
+      }
+      final response = await dioHttp.get("/api/v1/vas/orders/", params: args);
+      ValueAddOrderListResponse model = ValueAddOrderListResponse.fromJson(
+        response as Map<String, dynamic>,
       );
-      return result;
+      return model;
     } catch (e) {
       throw Exception("Failed to getValueAddOrderList : $e");
     }
@@ -210,16 +212,18 @@ class ValueAddApi {
   }) async {
     try {
       final args = {
-        'offset': (page -1)*pageSize,
+        'offset': (page - 1) * pageSize,
         'limit': pageSize,
         "group_by": useGroupBy ? 'device_id' : "",
       };
-      String response = await dioHttp.get("/api/v1/vas/subscriptions",params: args);
-      if (response.isEmpty) {
-        return null;
-      }
+      final response = await dioHttp.get(
+        "/api/v1/vas/subscriptions",
+        params: args,
+      );
       ValueAddSubscriptionListResponse model =
-      ValueAddSubscriptionListResponse.fromJson(json.decode(response));
+          ValueAddSubscriptionListResponse.fromJson(
+            response as Map<String, dynamic>,
+          );
       return model;
     } catch (e) {
       throw Exception("Failed to getValueAddSubscriptions : $e");
@@ -228,22 +232,22 @@ class ValueAddApi {
 
   Future<ValueAddCheckDeviceServiceResponse?>
   checkDeviceSubscriptionsEntitlements(
-      String deviceId, {
-        String serviceType = "",
-        int page = 1,
-        int pageSize = 20,
-      }) async {
+    String deviceId, {
+    String serviceType = "",
+    int page = 1,
+    int pageSize = 20,
+  }) async {
     try {
-      final args = {
-        'device_id': deviceId,
-        'service_type': serviceType,
-      };
-      String? response = await dioHttp.get("/api/v1/vas/subscriptions/entitlements/check/",params: args);
-      if (response == null) {
-        return null;
-      }
+      final args = {'device_id': deviceId, 'service_type': serviceType};
+      final response = await dioHttp.get(
+        "/api/v1/vas/subscriptions/entitlements/check/",
+        params: args,
+      );
+
       ValueAddCheckDeviceServiceResponse model =
-      ValueAddCheckDeviceServiceResponse.fromJson(json.decode(response));
+          ValueAddCheckDeviceServiceResponse.fromJson(
+            response as Map<String, dynamic>,
+          );
 
       return model;
     } catch (e) {
@@ -256,23 +260,24 @@ class ValueAddApi {
   // device_product_id: 设备产品型号ID（如 CAMERA_PRO_001）
   // device_product_ids: 多个设备产品型号ID，逗号分隔（V2批量查询，如 CAM_001,CAM_002）
   Future<ValueAddSupportDevicePlansResponse?> getValueAddPlansByDevice(
-      String deviceIds, {
-        int page = 1,
-        int pageSize = 20,
-      }) async {
+    String deviceIds, {
+    int page = 1,
+    int pageSize = 20,
+  }) async {
     try {
       final args = {
-        'offset': (page -1)*pageSize,
+        'offset': (page - 1) * pageSize,
         'limit': pageSize,
         'device_ids': deviceIds,
       };
-      String? response = await dioHttp.get("/api/v1/vas/products/device-plans/",params: args);
-      if (response == null) {
-        return null;
-      }
+      final response = await dioHttp.get(
+        "/api/v1/vas/products/device-plans/",
+        params: args,
+      );
       ValueAddSupportDevicePlansResponse model =
-      ValueAddSupportDevicePlansResponse.fromJson(json.decode(response));
-
+          ValueAddSupportDevicePlansResponse.fromJson(
+            response as Map<String, dynamic>,
+          );
       return model;
     } catch (e) {
       throw Exception("Failed to getValueAddPlansByDevice : $e");
@@ -280,15 +285,22 @@ class ValueAddApi {
   }
 
   Future<CheckDeviceAvailableByPlanResponse?> getValueAddAvailableDeviceByPlan(
-      String planId,
-      List<Map<String, dynamic>> deviceMaps,
-      ) async {
+    String planId,
+    List<Map<String, dynamic>> deviceMaps,
+  ) async {
     try {
       // List<Map<String, dynamic>> deviceValue = devices.map((device) => device.toJson()).toList();
 
       final args = {'plan_id': planId, 'devices': deviceMaps};
-      CheckDeviceAvailableByPlanResponse? response = await dioHttp.get<CheckDeviceAvailableByPlanResponse>("/api/v1/vas/products/batch-check-compatibility/",params: args);
-      return response;
+      final response = await dioHttp.get<CheckDeviceAvailableByPlanResponse>(
+        "/api/v1/vas/products/batch-check-compatibility/",
+        params: args,
+      );
+      CheckDeviceAvailableByPlanResponse model =
+          CheckDeviceAvailableByPlanResponse.fromJson(
+            response as Map<String, dynamic>,
+          );
+      return model;
     } catch (e) {
       throw Exception("Failed to getValueAddCheckDeviceAvailableByPlan : $e");
     }

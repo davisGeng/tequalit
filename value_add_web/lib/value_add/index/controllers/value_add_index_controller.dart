@@ -1,12 +1,7 @@
 import 'dart:convert';
 
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:value_add_web/WebPageSecond.dart';
-import 'package:value_add_web/value_add/index_2/bindings/value_add_index_binding2.dart';
-import 'package:value_add_web/value_add/index_2/controllers/value_add_index_controller2.dart';
-import 'package:value_add_web/value_add/index_2/views/value_add_index_view2.dart';
 
 import '../../../api/value_add_api.dart';
 import '../../../common/controller/route_view_controller.dart';
