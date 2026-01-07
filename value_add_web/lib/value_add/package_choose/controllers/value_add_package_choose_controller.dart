@@ -1,8 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:dart_extensions/dart_extensions.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -11,17 +6,16 @@ import 'package:value_add_web/api/value_add_api.dart';
 import '../../../common/model/load_state.dart';
 import '../../../common/widget/basic_snack.dart';
 import '../../../common/widget/basic_toast.dart';
-import '../../../common/widget/loadable_scaffold.dart';
+import '../../../common/widget/loadable_web_scaffold.dart';
 import '../../../model/value_add_create_order_response.dart';
 import '../../../model/value_add_product_response.dart';
-import '../../../services/app_service.dart';
 import '../../../services/log_service.dart';
 import '../../device_choose/controllers/value_add_device_choose_controller.dart';
 import '../../../common/controller/route_view_controller.dart';
 import '../../device_choose/views/value_add_device_choose_view.dart';
 
 class ValueAddPackageChooseController extends RouteViewController
-    with LoadableController {
+    with LoadableWebController {
   // final CardSwiperController swiperController = CardSwiperController();
 
   final RxList<CloudGoodsBanners> banners = <CloudGoodsBanners>[].obs;

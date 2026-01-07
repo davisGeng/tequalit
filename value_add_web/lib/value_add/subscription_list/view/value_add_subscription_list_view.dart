@@ -1,43 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:value_add_web/common/widget/loadable_web_scaffold.dart';
 
 import '../../../../../../assets/app_theme.dart';
 import '../../../assets/assets.gen.dart';
 import '../../../common/widget/empty_view.dart';
-import '../../../common/widget/loadable_scaffold.dart';
 import '../../widget/value_add_subscription_card.dart';
 import '../controllers/value_add_subscription_list_controller.dart';
 
-class ValueAddSubscriptionListView extends GetView<ValueAddSubscriptionListController> {
+class ValueAddSubscriptionListView
+    extends GetView<ValueAddSubscriptionListController> {
   const ValueAddSubscriptionListView({super.key});
   @override
   Widget build(BuildContext context) {
-    return LoadableScaffold(
-      appBar: _buildAppBar(context),
+    return LoadableWebScaffold(
+      title: 'my_plan_btn'.tr,
+      bottomSafeHeight: -1,
       backgroundColor: AppTheme.current.colors.inverseBackground,
       body: _buidBody(context),
-      // Obx(() => _buildRefreshView(context)),
-      // Column(children: <Widget>[Expanded(child: ), _buildBottomView()]),
       controller: controller,
-    );
-  }
-
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Color.fromRGBO(12, 12, 12, 1)),
-
-        onPressed: () {
-          Get.back();
-        },
-      ).marginOnly(left: 10),
-      title: Text('my_plan_btn'.tr, style: AppTheme.current.textStyles.title1),
-      centerTitle: true,
-      backgroundColor: Colors.white,
-      actions: <Widget>[],
-      scrolledUnderElevation: 0,
-
     );
   }
 
@@ -46,7 +28,10 @@ class ValueAddSubscriptionListView extends GetView<ValueAddSubscriptionListContr
       if (controller.loadState.value.isFailure) {
         return EmptyView(
           description: 'general_err'.tr,
-          topImage: Assets.images.imgDeviceConnectError.image(width: 150, height: 150),
+          topImage: Assets.images.imgDeviceConnectError.image(
+            width: 150,
+            height: 150,
+          ),
           showBtn: true,
           bottomBtn: true,
           bottomParentBgColor: Colors.white,
@@ -56,10 +41,14 @@ class ValueAddSubscriptionListView extends GetView<ValueAddSubscriptionListContr
             await controller.refreshData(showLoading: true);
           },
         );
-      } else if (controller.subscriptions.isEmpty && controller.loadState.value.isSuccess) {
+      } else if (controller.subscriptions.isEmpty &&
+          controller.loadState.value.isSuccess) {
         return EmptyView(
           description: 'no_active_plans_label'.tr,
-          topImage: Assets.images.imgDeviceConnectEmpty.image(width: 150, height: 150),
+          topImage: Assets.images.imgDeviceConnectEmpty.image(
+            width: 150,
+            height: 150,
+          ),
           showBtn: false,
         );
       }

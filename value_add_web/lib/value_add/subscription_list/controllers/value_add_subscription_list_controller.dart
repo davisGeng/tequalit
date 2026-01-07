@@ -1,13 +1,13 @@
 import 'package:get/get.dart';
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:value_add_web/common/widget/loadable_web_scaffold.dart';
 
 import '../../../api/value_add_api.dart';
 import '../../../common/model/load_state.dart';
-import '../../../common/widget/loadable_scaffold.dart';
 import '../../../model/value_add_subscription_list_response.dart';
 
-class ValueAddSubscriptionListController extends GetxController with LoadableController {
-
+class ValueAddSubscriptionListController extends GetxController
+    with LoadableWebController {
   final EasyRefreshController refreshController = EasyRefreshController(
     controlFinishRefresh: true,
     controlFinishLoad: true,
@@ -30,7 +30,6 @@ class ValueAddSubscriptionListController extends GetxController with LoadableCon
 
   @override
   void onReady() async {
-
     super.onReady();
   }
 
@@ -51,7 +50,10 @@ class ValueAddSubscriptionListController extends GetxController with LoadableCon
     } catch (e) {
       refreshController.finishLoad(IndicatorResult.fail);
     } finally {
-      var noMore = isMoreDataAvailable.isTrue ? IndicatorResult.success : IndicatorResult.noMore;
+      var noMore =
+          isMoreDataAvailable.isTrue
+              ? IndicatorResult.success
+              : IndicatorResult.noMore;
 
       refreshController.finishLoad(noMore);
     }
@@ -84,7 +86,9 @@ class ValueAddSubscriptionListController extends GetxController with LoadableCon
     //   await initService();
     // }
 
-    final res = await ValueAddApi.instance.getValueAddSubscriptions(useGroupBy: true);
+    final res = await ValueAddApi.instance.getValueAddSubscriptions(
+      useGroupBy: true,
+    );
 
     if (res != null) {
       if (currentPage == 1) {

@@ -1,5 +1,4 @@
 import 'package:dart_extensions/dart_extensions.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -9,7 +8,7 @@ import '../../../assets/assets.gen.dart';
 import '../../../common/controller/route_view_controller.dart';
 import '../../../common/widget/basic_button.dart';
 import '../../../common/widget/empty_view.dart';
-import '../../../common/widget/loadable_scaffold.dart';
+import '../../../common/widget/loadable_web_scaffold.dart';
 import '../../value_add_routes.dart';
 import '../../widget/value_add_4g_package_card.dart';
 import '../../widget/value_add_package_card.dart';
@@ -24,11 +23,22 @@ class ValueAddPackageChooseView
     return RouteView(
       controller: controller,
 
-      child: LoadableScaffold(
-        appBar: _buildAppBar(context),
-        isWrapSafeArea: false,
-        backgroundColor: Colors.white,
-        bottomSafeAreaBackgroundColor: Colors.white,
+      child: LoadableWebScaffold(
+        title: 'cloud_recording_nav_title'.tr,
+        actions: [
+          IconButton(
+            icon: Assets.images.iconServiceCloudEffect.image(
+              width: 24,
+              height: 24,
+            ),
+            onPressed: () async {
+              await Get.toNamed(
+                ValueAddPaths.valueAddOrderList,
+                arguments: {'productType': controller.productType},
+              );
+            },
+          ),
+        ],
 
         body: Container(
           color: AppTheme.current.colors.inverseBackground,
@@ -73,7 +83,6 @@ class ValueAddPackageChooseView
         ).marginOnly(right: 10),
       ],
       scrolledUnderElevation: 0,
-
     );
   }
 

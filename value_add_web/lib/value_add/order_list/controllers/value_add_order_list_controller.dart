@@ -1,14 +1,14 @@
 import 'package:get/get.dart';
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:value_add_web/common/widget/loadable_web_scaffold.dart';
 
 import '../../../api/value_add_api.dart';
 import '../../../common/model/load_state.dart';
-import '../../../common/widget/loadable_scaffold.dart';
 import '../../../model/value_add_order_list_response.dart';
 import '../../../services/log_service.dart';
 
 class ValueAddOrderListController extends GetxController
-    with LoadableController {
+    with LoadableWebController {
   final RxList<ValueAddOrderItem> orders = <ValueAddOrderItem>[].obs;
 
   final EasyRefreshController refreshController = EasyRefreshController(
@@ -84,13 +84,13 @@ class ValueAddOrderListController extends GetxController
   }
 
   Future getOrderList() async {
-
-    ValueAddOrderListResponse? res = await ValueAddApi.instance.getValueAddOrderList(
-      page: currentPage,
-      pageSize: pageSize,
-      status: 'PAID,PROCESSING',
-      productType: productType,
-    );
+    ValueAddOrderListResponse? res = await ValueAddApi.instance
+        .getValueAddOrderList(
+          page: currentPage,
+          pageSize: pageSize,
+          status: 'PAID,PROCESSING',
+          productType: productType,
+        );
 
     Log.d("**verifyOrder:${res?.toJson()}");
     if (res != null) {

@@ -1,27 +1,22 @@
-import 'dart:io';
-
-import 'package:dart_extensions/dart_extensions.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:value_add_web/api/value_add_api.dart';
+import 'package:value_add_web/common/widget/loadable_web_scaffold.dart';
 
 import '../../../common/model/load_state.dart';
 import '../../../common/widget/basic_snack.dart';
-import '../../../common/widget/loadable_scaffold.dart';
 import '../../../model/check_device_available_by_plan_response.dart';
 import '../../../model/value_add_create_order_response.dart';
 import '../../../model/value_add_product_response.dart';
 import '../../../common/controller/route_view_controller.dart';
-import '../../../services/app_service.dart';
 import '../../../services/log_service.dart';
-
 
 enum PayProgress { undo, success, fail, cancel }
 
 class ValueAddDeviceChooseController extends RouteViewController
-    with LoadableController {
+    with LoadableWebController {
   ValueAddDeviceChooseController(this.plans, this.prices);
   Plans plans;
   Prices prices;
@@ -88,7 +83,7 @@ class ValueAddDeviceChooseController extends RouteViewController
 
   Future<void> _fetchData() async {
     // await initService();
-    final deviceMaps =<Map<String,dynamic>>[];
+    final deviceMaps = <Map<String, dynamic>>[];
 
     if (deviceMaps.isNotEmpty) {
       final res = await ValueAddApi.instance.getValueAddAvailableDeviceByPlan(

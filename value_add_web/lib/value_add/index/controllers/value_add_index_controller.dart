@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:get/get.dart';
+import 'package:value_add_web/common/widget/loadable_web_scaffold.dart';
 
 import '../../../api/value_add_api.dart';
 import '../../../common/controller/route_view_controller.dart';
@@ -10,7 +11,8 @@ import '../../../model/value_add_product_response.dart';
 import '../../../services/log_service.dart';
 import '../../value_add_routes.dart';
 
-class ValueAddIndexController extends RouteViewController {
+class ValueAddIndexController extends RouteViewController
+    with LoadableWebController {
   // 翻页数据
   int currentPage = 1;
   final int pageSize = 10;

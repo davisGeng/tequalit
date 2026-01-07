@@ -2,13 +2,13 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:value_add_web/common/widget/loadable_web_scaffold.dart';
 
 import '../../../../../../assets/app_theme.dart';
 import '../../../../../../assets/assets.gen.dart';
 import '../../../common/controller/route_view_controller.dart';
 import '../../../common/widget/basic_button.dart';
 import '../../../common/widget/empty_view.dart';
-import '../../../common/widget/loadable_scaffold.dart';
 import '../../widget/value_add_device_choose_card.dart';
 import '../controllers/value_add_device_choose_controller.dart';
 
@@ -18,11 +18,9 @@ class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
   Widget build(BuildContext context) {
     return RouteView(
       controller: controller,
-      child: LoadableScaffold(
-        appBar: _buildAppBar(context),
-        isWrapSafeArea: true,
+      child: LoadableWebScaffold(
+        title: 'cloud_recording_nav_title'.tr,
         backgroundColor: AppTheme.current.colors.inverseBackground,
-        bottomSafeAreaBackgroundColor: Colors.white,
         body: Obx(() {
           if (controller.payProgress.value == PayProgress.undo) {
             return _buildRefreshView(context);
@@ -31,33 +29,6 @@ class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
         }),
         controller: controller,
       ),
-    );
-  }
-
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(
-          Icons.arrow_back,
-          color: Color.fromRGBO(12, 12, 12, 1),
-        ),
-
-        onPressed: () {
-          if (controller.payProgress.value == PayProgress.success) {
-            // Get.toNamed(ValueAddPaths.CLOUD_SERVICE_ORDER_LIST);
-            Get.back();
-          } else {
-            Get.back();
-          }
-        },
-      ).marginOnly(left: 10),
-      title: Text(
-        'cloud_recording_nav_title'.tr,
-        style: AppTheme.current.textStyles.title1,
-      ),
-      centerTitle: true,
-      backgroundColor: Colors.white,
-      actions: <Widget>[],
     );
   }
 

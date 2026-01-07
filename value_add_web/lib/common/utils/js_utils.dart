@@ -1,40 +1,46 @@
 import 'dart:html' as html; // Web端专属：必须导入，用于获取URL参数
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:value_add_web/common/utils/language_manager.dart';
-import 'package:value_add_web/services/log_service.dart';
+// import 'package:value_add_web/services/log_service.dart';
 import 'dart:js' as js;
 import 'dart:convert';
 
 /// Web端URL Locale解析工具类
 class JsUtils {
-
   static final _instance = JsUtils();
   static JsUtils get instance => _instance;
 
   int deviceCount = 0;
   String token = "";
   bool hadUpdateDevice = false;
-  List<Map<String,dynamic>> deviceMaps = [];
-  /// 从URL参数中解析Locale，无参数返回null
-  void init(){
+  List<Map<String, dynamic>> deviceMaps = [];
 
+  String platform = "android";
+  double topBarHeight = 20;
+  double bottomBarHeight = 30;
+
+  /// 从URL参数中解析Locale，无参数返回null
+  void init() {
     final urlParams = WebParamParser.parseUrlParams();
-    if(urlParams.isNotEmpty){
+    if (urlParams.isNotEmpty) {
       // 获取具体参数
       String languageCode = WebParamParser.getParam("languageCode") ?? "";
       String countryCode = urlParams['countryCode'] ?? "";
       String scriptCode = urlParams['scriptCode'] ?? "";
       token = urlParams['userToken'] ?? "";
 
-      if(languageCode.isNotEmpty){
-        LanguageManager.instance.updateLocale(languageCode,countryCode: countryCode,scriptCode: scriptCode);
+      if (languageCode.isNotEmpty) {
+        LanguageManager.instance.updateLocale(
+          languageCode,
+          countryCode: countryCode,
+          scriptCode: scriptCode,
+        );
       }
     }
     _registerNativeMessageListener();
   }
-
 
   /// 核心1：注册JS全局方法，供原生A调用（接收A的消息）
   void _registerNativeMessageListener() {
@@ -43,7 +49,6 @@ class JsUtils {
       // 解析原生A传来的JSON字符串
       final Map<String, dynamic> data = json.decode(jsonStr);
       debugPrint("✅ Web-B收到原生A的消息：$data");
-
     };
     js.context["receiveNativeDeviceList"] = (String jsonStr) {
       // 解析原生A传来的JSON字符串
@@ -54,7 +59,6 @@ class JsUtils {
     };
     sendMessageToNative(type: "ready");
   }
-
 
   /// 【已修复】Web-B → 发送消息到原生A（正确调用原生注册的通道）
   void sendMessageToNative({String type = "toast"}) {
@@ -87,7 +91,35 @@ class JsUtils {
     // js.context.callMethod("open", ["flutterapp://backToNative?params=${Uri.encodeComponent(json.encode({"id":123}))}"]);
   }
 
+  Widget buildPlatformBackIcon() {
+    void onBackPressed() {
+      // if (Navigator.canPop(context)) {
+      //   Navigator.pop(context); // 返回上一页
+      // }
+      Get.back();
+    }
 
+    if (platform == TargetPlatform.iOS.name) {
+      // 直接判断 TargetPlatform 类型，比对比 name 更安全
+      return IconButton(
+        icon: const Icon(CupertinoIcons.back, size: 24, color: Colors.black),
+        onPressed: onBackPressed, // 绑定点击事件
+        padding: EdgeInsets.zero, // 可选：移除 IconButton 默认内边距，贴合原生样式
+        constraints: const BoxConstraints(
+          minWidth: 44,
+          minHeight: 44,
+        ), // 符合原生点击区域规范
+      );
+    } else {
+      // 安卓风格可点击返回图标
+      return IconButton(
+        icon: const Icon(Icons.arrow_back, size: 24, color: Colors.black),
+        onPressed: onBackPressed, // 绑定点击事件
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      );
+    }
+  }
 }
 
 class WebParamParser {

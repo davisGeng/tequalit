@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dart_extensions/dart_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:value_add_web/common/widget/loadable_scaffold.dart';
+import 'package:value_add_web/common/widget/loadable_web_scaffold.dart';
 import '../../../assets/app_theme.dart';
 import '../../../common/widget/empty_view.dart';
 import '../../../services/log_service.dart';
@@ -16,24 +16,20 @@ import '../../../../common/controller/route_view_controller.dart';
 
 ///
 class ValueAddIndexView extends GetView<ValueAddIndexController> {
-  ValueAddIndexView({Key? key}) : super(key: key) {}
+  const ValueAddIndexView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return RouteView(
       controller: controller,
-      child: LoadableScaffold(
-
+      child: LoadableWebScaffold(
         body: _buidBody(context),
-        appBar: _buildAppBar(context),
-        isWrapSafeArea: false,
+        customNavBar: _buildAppBar(context),
+        topBarBgColor: Colors.transparent,
+        // 底部安全区域配置（Web端自定义）
+        bottomSafeHeight: -1,
         backgroundColor: AppTheme.current.colors.inverseBackground,
       ),
-      // BuildBaseWidget.buildScaffold(
-      //   appBar: _buildAppBar(context),
-      //   backgroundColor: AppTheme.current.colors.inverseBackground,
-      //   body: _buidBody(context),
-      // ),
     );
   }
 
@@ -80,53 +76,46 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
     child: _buildList(context),
   );
 
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      // 隐藏左侧默认返回键（适用于首页）
-      automaticallyImplyLeading: false,
+  Widget _buildAppBar(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24),
+      width: double.infinity, // 占满可用宽度
+      color: Colors.transparent,
+      height: 44,
+      child: Row(
+        children: [
+          // 左侧图标
+          Obx(() {
+            if (controller.fromPageType.value != FromPageType.valueAddIndex) {
+              return Icon(
+                    Platform.isAndroid
+                        ? Icons.arrow_back
+                        : Icons.arrow_back_ios,
+                    color: Colors.black,
+                    size: 24,
+                  )
+                  .onTap(() {
+                    Get.back();
+                  })
+                  .marginOnly(right: 8);
+            }
+            return SizedBox();
+          }),
 
-      title: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        width: double.infinity, // 占满可用宽度
-        child: Row(
-          children: [
-            // 左侧图标
-            Obx(() {
-              if (controller.fromPageType.value != FromPageType.valueAddIndex) {
-                return Icon(
-                      Platform.isAndroid
-                          ? Icons.arrow_back
-                          : Icons.arrow_back_ios,
-                      color: Colors.black,
-                      size: 24,
-                    )
-                    .onTap(() {
-                      Get.back();
-                    })
-                    .marginOnly(right: 8);
-              }
-              return SizedBox();
-            }),
-
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'services_page_title'.tr,
-                    style: AppTheme.current.textStyles.title0,
-                  ),
-                  _buildRightBtn(context),
-                ],
-              ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'services_page_title'.tr,
+                  style: AppTheme.current.textStyles.title0,
+                ),
+                _buildRightBtn(context),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-
-      centerTitle: true,
-      scrolledUnderElevation: 0,
-      backgroundColor: AppTheme.current.colors.inverseBackground,
     );
   }
 
