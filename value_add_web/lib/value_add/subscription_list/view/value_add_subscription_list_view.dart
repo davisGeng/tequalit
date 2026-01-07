@@ -5,6 +5,7 @@ import 'package:value_add_web/common/widget/loadable_web_scaffold.dart';
 
 import '../../../../../../assets/app_theme.dart';
 import '../../../assets/assets.gen.dart';
+import '../../../common/utils/js_utils.dart';
 import '../../../common/widget/empty_view.dart';
 import '../../widget/value_add_subscription_card.dart';
 import '../controllers/value_add_subscription_list_controller.dart';
@@ -14,9 +15,16 @@ class ValueAddSubscriptionListView
   const ValueAddSubscriptionListView({super.key});
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      JsUtils.instance.sendMessageToNative(type: 'hide_tab');
+    });
     return LoadableWebScaffold(
       title: 'my_plan_btn'.tr,
       bottomSafeHeight: -1,
+      leadingOnTap: () {
+        JsUtils.instance.sendMessageToNative(type: 'show_tab');
+        Get.back();
+      },
       backgroundColor: AppTheme.current.colors.inverseBackground,
       body: _buidBody(context),
       controller: controller,

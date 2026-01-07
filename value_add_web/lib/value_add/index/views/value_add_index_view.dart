@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dart_extensions/dart_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:value_add_web/common/utils/js_utils.dart';
 import 'package:value_add_web/common/widget/loadable_web_scaffold.dart';
 import '../../../assets/app_theme.dart';
 import '../../../common/widget/empty_view.dart';
@@ -20,6 +21,9 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      JsUtils.instance.sendMessageToNative(type: 'show_tab');
+    });
     return RouteView(
       controller: controller,
       child: LoadableWebScaffold(

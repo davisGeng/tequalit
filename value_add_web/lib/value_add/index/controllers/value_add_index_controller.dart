@@ -7,6 +7,7 @@ import 'package:value_add_web/common/widget/loadable_web_scaffold.dart';
 import '../../../api/value_add_api.dart';
 import '../../../common/controller/route_view_controller.dart';
 import '../../../common/model/load_state.dart';
+import '../../../common/utils/js_utils.dart';
 import '../../../model/value_add_product_response.dart';
 import '../../../services/log_service.dart';
 import '../../value_add_routes.dart';
@@ -34,6 +35,8 @@ class ValueAddIndexController extends RouteViewController
 
   @override
   void onAppear(bool isFirstAppear) {
+    JsUtils.instance.sendMessageToNative(type: 'show_tab');
+
     if (Get.arguments != null) {
       String fromType = Get.arguments["fromPageType"] ?? "";
       if (fromType == FromPageType.cloudPlayback.name) {

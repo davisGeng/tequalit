@@ -28,7 +28,12 @@ class TextUtils {
     TextStyle? style,
     TextDirection textDirection = TextDirection.ltr,
   }) {
-    return calculateWidth(text: text, style: style, maxLines: 1, textDirection: textDirection);
+    return calculateWidth(
+      text: text,
+      style: style,
+      maxLines: 1,
+      textDirection: textDirection,
+    );
   }
 
   // static String getStringWithOption(String? string) {
@@ -54,5 +59,14 @@ class TextUtils {
       // 包含小数点则解析为 double，否则解析为 int
       return numStr;
     }).toList();
+  }
+
+  static double stringToDouble(String? str, {double defaultValue = 0.0}) {
+    // 处理 null 或空字符串
+    if (str == null || str.isEmpty) {
+      return defaultValue;
+    }
+    // 安全转换，失败返回兜底值
+    return double.tryParse(str) ?? defaultValue;
   }
 }

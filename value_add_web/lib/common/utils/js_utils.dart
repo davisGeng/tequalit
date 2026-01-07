@@ -7,19 +7,21 @@ import 'package:value_add_web/common/utils/language_manager.dart';
 import 'dart:js' as js;
 import 'dart:convert';
 
+import 'package:value_add_web/common/utils/text_utils.dart';
+
 /// Web端URL Locale解析工具类
 class JsUtils {
   static final _instance = JsUtils();
   static JsUtils get instance => _instance;
 
   int deviceCount = 0;
-  String token = "";
+  String userToken = "";
   bool hadUpdateDevice = false;
   List<Map<String, dynamic>> deviceMaps = [];
 
-  String platform = "android";
-  double topBarHeight = 20;
-  double bottomBarHeight = 30;
+  String appPlatform = "android";
+  double topBarHeight = 0;
+  double bottomBarHeight = 0;
 
   /// 从URL参数中解析Locale，无参数返回null
   void init() {
@@ -29,8 +31,16 @@ class JsUtils {
       String languageCode = WebParamParser.getParam("languageCode") ?? "";
       String countryCode = urlParams['countryCode'] ?? "";
       String scriptCode = urlParams['scriptCode'] ?? "";
-      token = urlParams['userToken'] ?? "";
+      userToken = urlParams['userToken'] ?? "";
+      appPlatform = urlParams['appPlatform'] ?? "";
+      String topBarHeightString = urlParams['topBarHeight'] ?? "";
+      String bottomBarHeightString = urlParams['bottomBarHeight'] ?? "";
+      topBarHeight = TextUtils.stringToDouble(topBarHeightString);
+      bottomBarHeight = TextUtils.stringToDouble(bottomBarHeightString);
 
+      debugPrint(
+        "urlParams: userToken:$userToken,topH:$topBarHeightString,boH:$bottomBarHeightString",
+      );
       if (languageCode.isNotEmpty) {
         LanguageManager.instance.updateLocale(
           languageCode,
@@ -39,6 +49,15 @@ class JsUtils {
         );
       }
     }
+    deviceMaps = [
+      {
+        "deviceId": "ubuntu_esxi-e11d94dc-3396-4398-89ec-63e364d4c234",
+        "firmwareVersion": "1.0.96",
+        "deviceName": "hm2",
+        "deviceThirdPartId": "6cfc926ee1e6877380nbao",
+        "uuid": "1122312000233",
+      },
+    ];
     _registerNativeMessageListener();
   }
 
@@ -55,6 +74,8 @@ class JsUtils {
       List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(
         json.decode(jsonStr),
       );
+      // deviceMaps = _deviceList;
+
       debugPrint("✅ Web-B收到原生A的消息：${_deviceList.length}");
     };
     sendMessageToNative(type: "ready");
@@ -91,19 +112,16 @@ class JsUtils {
     // js.context.callMethod("open", ["flutterapp://backToNative?params=${Uri.encodeComponent(json.encode({"id":123}))}"]);
   }
 
-  Widget buildPlatformBackIcon() {
+  Widget buildPlatformBackIcon(VoidCallback? onTap) {
     void onBackPressed() {
-      // if (Navigator.canPop(context)) {
-      //   Navigator.pop(context); // 返回上一页
-      // }
       Get.back();
     }
 
-    if (platform == TargetPlatform.iOS.name) {
+    if (appPlatform == TargetPlatform.iOS.name) {
       // 直接判断 TargetPlatform 类型，比对比 name 更安全
       return IconButton(
         icon: const Icon(CupertinoIcons.back, size: 24, color: Colors.black),
-        onPressed: onBackPressed, // 绑定点击事件
+        onPressed: onTap ?? onBackPressed, // 绑定点击事件
         padding: EdgeInsets.zero, // 可选：移除 IconButton 默认内边距，贴合原生样式
         constraints: const BoxConstraints(
           minWidth: 44,
@@ -114,7 +132,7 @@ class JsUtils {
       // 安卓风格可点击返回图标
       return IconButton(
         icon: const Icon(Icons.arrow_back, size: 24, color: Colors.black),
-        onPressed: onBackPressed, // 绑定点击事件
+        onPressed: onTap ?? onBackPressed, // 绑定点击事件
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       );

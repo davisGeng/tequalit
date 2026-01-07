@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../../assets/app_theme.dart';
 import '../../../assets/assets.gen.dart';
 import '../../../common/controller/route_view_controller.dart';
+import '../../../common/utils/js_utils.dart';
 import '../../../common/widget/basic_button.dart';
 import '../../../common/widget/empty_view.dart';
 import '../../../common/widget/loadable_web_scaffold.dart';
@@ -20,6 +21,9 @@ class ValueAddPackageChooseView
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      JsUtils.instance.sendMessageToNative(type: 'hide_tab');
+    });
     return RouteView(
       controller: controller,
 
@@ -39,7 +43,11 @@ class ValueAddPackageChooseView
             },
           ),
         ],
+        leadingOnTap: () {
+          JsUtils.instance.sendMessageToNative(type: 'show_tab');
 
+          Get.back();
+        },
         body: Container(
           color: AppTheme.current.colors.inverseBackground,
           child: _buildBody(context),

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:value_add_web/api/value_add_api.dart';
+import 'package:value_add_web/common/utils/js_utils.dart';
 import 'package:value_add_web/common/widget/loadable_web_scaffold.dart';
+import 'package:value_add_web/value_add/widget/pay_methods_dialog.dart';
 
 import '../../../common/model/load_state.dart';
 import '../../../common/widget/basic_snack.dart';
@@ -28,7 +30,6 @@ class ValueAddDeviceChooseController extends RouteViewController
   int currentPage = 1;
 
   final int pageSize = 10;
-  // RxBool isMoreDataAvailable = false.obs;
   final selectIndex = (-1).obs;
   final payProgress = PayProgress.undo.obs;
 
@@ -45,6 +46,7 @@ class ValueAddDeviceChooseController extends RouteViewController
   void onInit() {
     showLoadingWidget.value = false;
     super.onInit();
+    refreshData();
   }
 
   @override
@@ -83,7 +85,7 @@ class ValueAddDeviceChooseController extends RouteViewController
 
   Future<void> _fetchData() async {
     // await initService();
-    final deviceMaps = <Map<String, dynamic>>[];
+    final deviceMaps = JsUtils.instance.deviceMaps;
 
     if (deviceMaps.isNotEmpty) {
       final res = await ValueAddApi.instance.getValueAddAvailableDeviceByPlan(
@@ -118,12 +120,61 @@ class ValueAddDeviceChooseController extends RouteViewController
   }
 
   Future choosePaymentMethodDialog(BuildContext context) async {
-    // await ValueAddApi.instance.choosePaymentMethodAction(context, plans, (
-    //   channelCode,
-    //   isRepay,
-    // ) async {
-    //   subOrder(context, channelCode, isRepay);
-    // });
+    await choosePaymentMethodAction(context, plans, (
+      channelCode,
+      isRepay,
+    ) async {
+      subOrder(context, channelCode, isRepay);
+    });
+  }
+
+  Future choosePaymentMethodAction(
+    BuildContext context,
+    Plans plans,
+    Function(String channelCode, bool isRepayOrder) onConformTap,
+  ) async {
+    // 初始化默认索引为0
+    int checkIndex = 0;
+
+    // 获取支付渠道列表（空安全处理保持不变）
+    List<SupportedPaymentChannels> paymentChannels =
+        plans.paymentConfig?.supportedPaymentChannels ?? [];
+
+    if (paymentChannels.isNotEmpty) {
+      // 用 indexWhere 直接找到第一个 isDefault 为 true 的索引
+      // 若没有找到，返回 -1
+      final defaultIndex = paymentChannels.indexWhere(
+        (channel) => channel.isDefault == true,
+      );
+      // 若存在默认渠道，更新索引；否则保持默认0
+      if (defaultIndex != -1) {
+        checkIndex = defaultIndex;
+      }
+    }
+    if (paymentChannels.isEmpty) {
+      paymentChannels = [
+        SupportedPaymentChannels(
+          code: "airwallex",
+          name: "信用卡",
+          icon: "",
+          isDefault: true,
+        ),
+      ];
+    }
+    await Get.bottomSheet(
+      PayMethodsDialog(
+        platforms: paymentChannels,
+        selectIndex: checkIndex,
+        onTap: (v) async {
+          // selectPayPlatform = paymentChannels[v];
+          Get.back();
+          onConformTap.call(paymentChannels[v].code ?? "", false);
+          //开始下单，然后支付
+          // await subOrder(context, paymentChannels[v].code, false);
+        },
+      ),
+      isScrollControlled: true,
+    );
   }
 
   // 下单

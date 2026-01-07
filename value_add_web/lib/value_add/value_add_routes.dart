@@ -21,20 +21,16 @@ abstract class ValueAddRoutes {
           name: _ValueAddRouteNames.valueAddPackageChoose,
           page: () => ValueAddPackageChooseView(),
           binding: ValueAddPackageChooseBinding(),
-          transition: Transition.fade,
+          transition: Transition.rightToLeft,
         ),
 
         GetPage(
           name: _ValueAddRouteNames.valueAddOrderList,
           page: () => const ValueAddOrderListView(),
           binding: ValueAddOrderListBinding(),
-          transition: Transition.fade,
+          transition: Transition.rightToLeft,
         ),
-        // GetPage(
-        //   name: _ValueAddRouteNames.CLOUD_SERVICE_ORDER_BUY,
-        //   page: () => const CloudServiceOrderBuyView(),
-        //   binding: CloudServiceOrderBuyBinding(),
-        // ),
+
         GetPage(
           name: _ValueAddRouteNames.valueAddSubscriptionList,
           page: () => const ValueAddSubscriptionListView(),

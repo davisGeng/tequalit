@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:value_add_web/common/utils/text_utils.dart';
+
 import '../model/check_device_available_by_plan_response.dart';
 import '../model/value_add_check_device_service_response.dart';
 import '../model/value_add_create_order_response.dart';
@@ -289,20 +291,63 @@ class ValueAddApi {
     List<Map<String, dynamic>> deviceMaps,
   ) async {
     try {
-      // List<Map<String, dynamic>> deviceValue = devices.map((device) => device.toJson()).toList();
+      List<Map<String, dynamic>> simpleList = [];
+      for (var element in deviceMaps) {
+        simpleList.add({
+          "device_id": element['deviceId'],
+          "model": TextUtils.getStringWithOption(element['model']),
+          "firmware_version": element['firmwareVersion'],
+        });
+      }
 
-      final args = {'plan_id': planId, 'devices': deviceMaps};
-      final response = await dioHttp.get<CheckDeviceAvailableByPlanResponse>(
+      final args = {'plan_id': planId, 'devices': simpleList};
+      final response = await dioHttp.post(
         "/api/v1/vas/products/batch-check-compatibility/",
-        params: args,
+        data: args,
       );
-      CheckDeviceAvailableByPlanResponse model =
-          CheckDeviceAvailableByPlanResponse.fromJson(
-            response as Map<String, dynamic>,
+      // 1. 解析模型（保持原有逻辑，增加空值兜底）
+      final CheckDeviceAvailableByPlanResponse model =
+          CheckDeviceAvailableByPlanResponse.fromJson(response);
+      final List<DeviceAvailableResults> results = model.results ?? [];
+
+      // 2. 简洁构建 deviceId -> DeviceAvailableResults 的 Map（替代原 for 循环）
+      final Map<String, DeviceAvailableResults> resultMap = Map.fromIterable(
+        results,
+        key: (element) => (element as DeviceAvailableResults).deviceId ?? "",
+        value: (element) => element as DeviceAvailableResults,
+      );
+
+      // 3. 遍历 deviceMaps 并更新字段（封装工具方法，提升健壮性）
+      deviceMaps.forEach((map) {
+        // 安全获取 deviceId（兼容非 String 类型）
+        final String deviceId = _safeGetString(map, 'deviceId');
+        final DeviceAvailableResults? result = resultMap[deviceId];
+
+        if (result != null) {
+          // 统一提取字段，避免重复逻辑
+          final String deviceThirdPartId = _safeGetString(
+            map,
+            'deviceThirdPartId',
           );
+          final String deviceName = _safeGetString(map, 'deviceName');
+          final String iccid = _safeGetString(map, 'iccid');
+
+          // 更新字段
+          result.thirdPartDeviceId = deviceThirdPartId;
+          result.iccid = iccid;
+          result.deviceName = deviceName;
+        }
+      });
       return model;
     } catch (e) {
       throw Exception("Failed to getValueAddCheckDeviceAvailableByPlan : $e");
     }
+  }
+
+  String _safeGetString(Map<String, dynamic> map, String key) {
+    final dynamic value = map[key];
+    if (value == null) return "";
+    // 若值不是 String 类型，尝试转成 String（比如 123 -> "123"）
+    return value is String ? value : value.toString();
   }
 }

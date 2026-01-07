@@ -66,6 +66,7 @@ class LoadableWebScaffold extends StatelessWidget {
   final Color? navBackColor;
 
   final double navHeight = 44;
+  final VoidCallback? leadingOnTap;
   // 移除原有AppBar/title相关参数，新增自定义导航栏和安全区域参数
   const LoadableWebScaffold({
     super.key,
@@ -73,7 +74,7 @@ class LoadableWebScaffold extends StatelessWidget {
     this.title,
     this.titleColor = Colors.black,
     this.navBackColor = Colors.white,
-
+    this.leadingOnTap,
     this.customLeadingWidget,
     this.actions,
     this.topBarHeight = 0.0, // 默认无顶部栏
@@ -183,7 +184,8 @@ class LoadableWebScaffold extends StatelessWidget {
       topBarWidget = customNavBar;
     } else if (title != null) {
       Widget leftBtn =
-          customLeadingWidget ?? JsUtils.instance.buildPlatformBackIcon();
+          customLeadingWidget ??
+          JsUtils.instance.buildPlatformBackIcon(leadingOnTap);
       List<Widget> rightBtns = actions ?? [];
       topBarWidget = Container(
         padding: EdgeInsets.symmetric(horizontal: 10),

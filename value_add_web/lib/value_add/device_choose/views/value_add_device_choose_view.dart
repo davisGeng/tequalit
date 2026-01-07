@@ -95,7 +95,7 @@ class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
           ],
         );
       }
-      return SizedBox();
+      return _buildList(context);
     }),
   );
   Widget _buildList(BuildContext context) {
