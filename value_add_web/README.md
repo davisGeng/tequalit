@@ -23,7 +23,7 @@ samples, guidance on mobile development, and a full API reference.
 - 图片放到对应目录后，需要运行`dart run build_runner build`后，会自动在`lib/assets/assets.gen.dart`生成对应的属性，代码中可通过`Assets.images.userLogo.image()`来生成一个Image Widget
 
 项目启动
-- flutter run -d chrome --web-port 8080 --web-hostname 0.0.0.0
+- flutter run -d chrome --web-port 8081 --web-hostname 0.0.0.0
 - flutter run -d chrome --web-port 8080
 生成vasApi.g.dart
 - # 生成代码（--delete-conflicting-outputs 用于解决文件冲突）

@@ -13,22 +13,16 @@ import 'package:value_add_web/services/log_service.dart';
 import 'package:value_add_web/services/storage_service.dart';
 
 import 'WebPageSecond.dart';
-import 'WebToReatcTs.dart';
+import 'WebToReatcTs2.dart';
 import 'api/value_add_api.dart';
 import 'assets/app_theme.dart';
 import 'common/utils/app_translations.dart';
 import 'common/utils/language_manager.dart';
+import 'dart:html' as html; // 核心：用于解析URL的hash和参数
 
 void main() async {
   await AppTask.init();
-  JsUtils.instance.init();
-  WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ 1. 初始化SharedPreferences（Dio拦截器中获取Token需要）
-  final sp = await SharedPreferences.getInstance();
-  sp.setString("token", "625397a3dce094dc3c8f0db723a158f911ce0ff0");
-
-  ValueAddApi.instance.init("zh");
   runApp(const MyApp());
 }
 
@@ -50,7 +44,6 @@ class MyApp extends StatelessWidget {
         // 增值服务
         ValueAddRoutes.route(),
       ],
-      // [...Routes.routes],
       initialRoute: ValueAddPaths.main,
       translations: AppTranslations(),
       locale:
@@ -64,17 +57,24 @@ class MyApp extends StatelessWidget {
       supportedLocales: LanguageManager.instance.getSupportedLocales(),
       builder: EasyLoading.init(),
     );
-
   }
 }
 
 final class AppTask {
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
-    // await Get.putAsync(() => LogService().init());
     await Get.putAsync(() => AppService().init());
 
     await Get.putAsync(() => StorageService.instance.init());
+    Get.put(WebParamsStore());
+
+    JsUtils.instance.init();
+
+    // ✅ 1. 初始化SharedPreferences（Dio拦截器中获取Token需要）
+    final sp = await SharedPreferences.getInstance();
+    sp.setString("token", "625397a3dce094dc3c8f0db723a158f911ce0ff0");
+
+    ValueAddApi.instance.init("zh");
   }
 }
 
@@ -93,11 +93,11 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // 初始化：注册【接收原生A消息】的JS方法（供A调用）
-    _registerNativeMessageListener();
+    _registerMessageListener();
   }
 
-  /// 核心1：注册JS全局方法，供原生A调用（接收A的消息）
-  void _registerNativeMessageListener() {
+  /// 核心1：注册JS全局方法
+  void _registerMessageListener() {
     // 向浏览器window对象挂载JS方法：receiveNativeMessage
     js.context["receiveNativeMessage"] = (String jsonStr) {
       // 解析原生A传来的JSON字符串
@@ -106,7 +106,6 @@ class _HomePageState extends State<HomePage> {
       // 更新页面UI
       setState(() {
         _nativeMessage = "A的消息：${jsonStr}";
-
       });
     };
     js.context["receiveNativeDeviceList"] = (String jsonStr) {
@@ -120,9 +119,12 @@ class _HomePageState extends State<HomePage> {
         _nativeMessage = "A的消息：${jsonStr}";
       });
     };
+    // js.context['receiveParamsFromReact'] = (String status, String timestamp) {
+    //   // 可把参数存入GetX全局状态，让子页面获取
+    //   Get.find<WebParamsStore>().updateStatus(status, timestamp);
+    // };
     _sendMessageToNative(type: "ready");
   }
-
 
   /// 【已修复】Web-B → 发送消息到原生A（正确调用原生注册的通道）
   void _sendMessageToNative({String type = "toast"}) {
@@ -180,34 +182,34 @@ class _HomePageState extends State<HomePage> {
               // Web→Native 发送消息按钮
               ElevatedButton(
                 onPressed: _sendMessageToNative,
-                child: const Text("Web-B → 发送消息到原生A"),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(300, 50),
                 ),
+                child: const Text("Web-B → 发送消息到原生A"),
               ),
               const SizedBox(height: 20),
               // Web→返回原生 按钮（核心）
               ElevatedButton(
                 onPressed: _backToNativeApp,
-                child: const Text("🔙 Web-B → 返回原生APP-A"),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(300, 50),
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
+                child: const Text("🔙 Web-B → 返回原生APP-A"),
               ),
               ElevatedButton(
                 onPressed: () {
-                  // Get.toNamed("/second"); // 跳转到/#/second
+                  Get.toNamed(ValueAddPaths.second); // 跳转到/#/second
 
-                  Get.to(() => WebPageSecond());
+                  // Get.to(() => WebPageSecond());
                 },
-                child: const Text("跳转到page B"),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(300, 50),
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
+                child: const Text("跳转到page B"),
               ),
             ],
           ),

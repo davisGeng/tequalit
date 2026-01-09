@@ -1,4 +1,5 @@
 import 'dart:html' as html; // Web端专属：必须导入，用于获取URL参数
+import 'package:dart_extensions/dart_extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,6 +9,11 @@ import 'dart:js' as js;
 import 'dart:convert';
 
 import 'package:value_add_web/common/utils/text_utils.dart';
+
+// 给enum添加常量字符串属性typeName（编译时常量）
+enum FromType { native, paymentWeb, unknown }
+
+enum MessageType { nativeMessage, nativeDeviceList, paymentResult, unknown }
 
 /// Web端URL Locale解析工具类
 class JsUtils {
@@ -58,16 +64,23 @@ class JsUtils {
         "uuid": "1122312000233",
       },
     ];
-    _registerNativeMessageListener();
+    _registerMessageListener();
   }
 
+  // {
+  //   fromeType:"",
+  //   messageType:"",
+  //   status:"",
+  //   data:""
+  // }
   /// 核心1：注册JS全局方法，供原生A调用（接收A的消息）
-  void _registerNativeMessageListener() {
+  void _registerMessageListener() {
     // 向浏览器window对象挂载JS方法：receiveNativeMessage
-    js.context["receiveNativeMessage"] = (String jsonStr) {
+    js.context["receiveMessage"] = (String jsonStr) {
       // 解析原生A传来的JSON字符串
       final Map<String, dynamic> data = json.decode(jsonStr);
-      debugPrint("✅ Web-B收到原生A的消息：$data");
+      debugPrint("✅ Web-B收到的消息：$data");
+      _handleMessage(data);
     };
     js.context["receiveNativeDeviceList"] = (String jsonStr) {
       // 解析原生A传来的JSON字符串
@@ -79,6 +92,19 @@ class JsUtils {
       debugPrint("✅ Web-B收到原生A的消息：${_deviceList.length}");
     };
     sendMessageToNative(type: "ready");
+  }
+
+  void _handleMessage(Map<String, dynamic> data) {
+    String fromType = data["fromeType"] ?? "";
+    if (fromType.equalsIgnoreCase(FromType.native.name)) {
+      String messageType = data['messageType'] ?? "";
+      if (messageType.equalsIgnoreCase(MessageType.nativeMessage.name)) {
+      } else if (messageType.equalsIgnoreCase(
+        MessageType.nativeDeviceList.name,
+      )) {
+      } else {}
+    } else if (fromType.equalsIgnoreCase(FromType.paymentWeb.name)) {
+    } else {}
   }
 
   /// 【已修复】Web-B → 发送消息到原生A（正确调用原生注册的通道）
@@ -152,5 +178,35 @@ class WebParamParser {
   // 快捷获取指定参数（支持默认值）
   static String? getParam(String key, {String? defaultValue}) {
     return parseUrlParams()[key] ?? defaultValue;
+  }
+}
+
+class WebParamsStore extends GetxController {
+  // 响应式变量（.obs），支持实时更新UI
+  RxString paymentStatus = '未收到'.obs;
+  RxString timestamp = ''.obs;
+
+  // 👉 定义带参数的构造方法（解决你的核心问题）
+  // {String? paymentStatus, String? timestamp} 是可选参数，避免实例化时必须传值
+  WebParamsStore({String? paymentStatus, String? timestamp}) {
+    // 如果传入了参数，就初始化响应式变量
+    if (paymentStatus != null) {
+      this.paymentStatus.value = paymentStatus;
+    }
+    if (timestamp != null) {
+      this.timestamp.value = timestamp;
+    }
+  }
+
+  // 更新参数的方法（供其他页面调用）
+  void updateStatus(String status, String time) {
+    paymentStatus.value = status;
+    timestamp.value = time;
+  }
+
+  // 可选：清空参数的方法（比如重新跳转B前重置）
+  void clear() {
+    paymentStatus.value = '未收到';
+    timestamp.value = '';
   }
 }

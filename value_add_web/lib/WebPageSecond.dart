@@ -7,12 +7,11 @@ import 'package:get/get_core/src/get_main.dart';
 import 'dart:html' as html;
 
 import 'package:url_launcher/url_launcher.dart';
+import 'package:value_add_web/WebToReatcTs2.dart';
 import 'package:value_add_web/api/user_api.dart';
+import 'package:value_add_web/value_add/value_add_routes.dart';
 
 import 'assets/assets.gen.dart';
-
-
-
 
 class WebPageSecond extends StatefulWidget {
   const WebPageSecond({super.key});
@@ -20,10 +19,8 @@ class WebPageSecond extends StatefulWidget {
   State<StatefulWidget> createState() {
     return _webtoreatcts();
   }
-
-
-
 }
+
 class _webtoreatcts extends State<WebPageSecond> {
   String _messageFromPayment = "等待接收payment返回信息";
   final String _reactOrigin = "http://localhost:3000"; // B端源
@@ -35,6 +32,7 @@ class _webtoreatcts extends State<WebPageSecond> {
     // _listenReactMessage();
     _parseUrlParams();
   }
+
   // 核心：解析URL中的查询参数
   void _parseUrlParams() {
     // 1. 获取当前浏览器的完整URL
@@ -45,11 +43,11 @@ class _webtoreatcts extends State<WebPageSecond> {
     // 3. 通过queryParameters获取指定参数（key对应?后的参数名）
     setState(() {
       String result = uri.queryParameters['result'] ?? ""; // 拿到"success"
-      String? data = uri.queryParameters['data'] ?? "";     // 若有参数则拿到对应值，无则为null
+      String? data = uri.queryParameters['data'] ?? ""; // 若有参数则拿到对应值，无则为null
       _messageFromPayment = "收到payment消息：${result},data:$data";
-
     });
   }
+
   // ✅ 1. 监听React(B)发送的消息（核心）
   void _listenReactMessage() {
     html.window.addEventListener('message', (event) {
@@ -64,17 +62,20 @@ class _webtoreatcts extends State<WebPageSecond> {
       debugPrint("Flutter(B) 接收数据：${msgEvent.data}");
     });
   }
+
   // 👉 方式1：当前窗口跳转到React-TS(B)
   void jumpToReactCurrentWindow() {
     final String targetUrl = "http://192.168.1.107:3000/#second";
     // 调用浏览器window.location.href实现跳转
     js.context.callMethod('eval', ["window.location.href = '$targetUrl'"]);
   }
+
   void jumpToReactCurrentWindow3() {
     const String targetFlutterUrl = "http://localhost:8080/#second";
     // 拼接参数，传递给React(B)
-    final String reactUrl = "http://localhost:3000?from=${Uri.encodeComponent(targetFlutterUrl)}";
-    launchUrl(Uri(path: reactUrl),mode: LaunchMode.inAppWebView);
+    final String reactUrl =
+        "http://localhost:3000?from=${Uri.encodeComponent(targetFlutterUrl)}";
+    launchUrl(Uri(path: reactUrl), mode: LaunchMode.inAppWebView);
     // launchUrl(reactUrl, mode: LaunchMode.inAppWebView);
   }
 
@@ -94,8 +95,9 @@ class _webtoreatcts extends State<WebPageSecond> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: (){
-                Get.toNamed("/third");
+              onPressed: () {
+                // Get.to(Webtoreatcts());
+                Get.toNamed(ValueAddPaths.third);
               },
               child: const Text("当前窗口跳转C"),
             ),
@@ -115,42 +117,49 @@ class _webtoreatcts extends State<WebPageSecond> {
               ),
             ),
             ElevatedButton(
-                onPressed: () async{
-                final tokenMap = await  UserApi.login(username: "+8617665326531", password: "q123456",countryCode: "CN");
+              onPressed: () async {
+                final tokenMap = await UserApi.login(
+                  username: "+8617665326531",
+                  password: "q123456",
+                  countryCode: "CN",
+                );
                 debugPrint("登录成功 token：${tokenMap}");
-
-                },
-                child: const Text("login"),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(300, 50),
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                )
+              },
+              child: const Text("login"),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(300, 50),
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
             ),
             ElevatedButton(
-                onPressed: () async{
-                  final info = await  UserApi.getUserInfo();
-                  debugPrint("info ：${info}");
-
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(300, 50),
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-                child:
-                 Text("save_to_phone_album_label".tr)
+              onPressed: () async {
+                final info = await UserApi.getUserInfo();
+                debugPrint("info ：${info}");
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(300, 50),
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text("save_to_phone_album_label".tr),
             ),
-            Assets.images.iconServiceData4gBanner.image(width: double.infinity,height: 200,fit: BoxFit.fill)
-
+            Assets.images.iconServiceData4gBanner.image(
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.fill,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Future<void> openWebViewPageWithLocalHtml(BuildContext context, String title, String fileName) async {
-
+  Future<void> openWebViewPageWithLocalHtml(
+    BuildContext context,
+    String title,
+    String fileName,
+  ) async {
     // final WebViewController controller = WebViewController()
     //   ..setJavaScriptMode(JavaScriptMode.unrestricted)
     //   ..loadRequest(Uri.parse('local_html_demo.html')); // 本地HTML（放在web目录下）
@@ -161,7 +170,5 @@ class _webtoreatcts extends State<WebPageSecond> {
     //     body: WebViewWidget(controller: controller),
     //   ),
     // );
-
-
   }
 }

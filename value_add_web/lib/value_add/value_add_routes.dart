@@ -1,9 +1,12 @@
 import 'package:get/get.dart';
+import 'package:value_add_web/WebPageSecond.dart';
+import 'package:value_add_web/main.dart';
 import 'package:value_add_web/value_add/package_choose/bindings/value_add_package_choose_binding.dart';
 import 'package:value_add_web/value_add/package_choose/views/value_add_package_choose_view.dart';
 import 'package:value_add_web/value_add/subscription_list/bindings/value_add_subscription_list_binding.dart';
 import 'package:value_add_web/value_add/subscription_list/view/value_add_subscription_list_view.dart';
 
+import 'base/Webtoreatcts.dart';
 import 'index/bindings/value_add_index_binding.dart';
 import 'index/views/value_add_index_view.dart';
 import 'order_list/bindings/value_add_order_list_binding.dart';
@@ -13,8 +16,8 @@ abstract class ValueAddRoutes {
   static GetPage route() {
     return GetPage(
       name: _ValueAddRouteNames.main,
-      page: () => ValueAddIndexView(),
-      binding: ValueAddIndexBinding(),
+      page: () => HomePage(),
+      // binding: ValueAddIndexBinding(),
       transition: Transition.fade,
       children: [
         GetPage(
@@ -37,6 +40,8 @@ abstract class ValueAddRoutes {
           binding: ValueAddSubscriptionListBinding(),
           transition: Transition.fade,
         ),
+        GetPage(name: _ValueAddRouteNames.second, page: () => WebPageSecond()),
+        GetPage(name: _ValueAddRouteNames.third, page: () => Webtoreatcts()),
       ],
     );
   }
@@ -53,6 +58,8 @@ abstract class _ValueAddRouteNames {
   static const valueAddOrderList = '/value-add-order-list';
   static const valueAddChooseDevice = '/value-add-choose-device';
   static const valueAddSubscriptionList = '/value-add-subscription-list';
+  static const second = '/second';
+  static const third = '/third';
 }
 
 // 2. 路径拼接（避免双斜杠）
@@ -69,4 +76,8 @@ abstract class ValueAddPaths {
       '${_ValueAddRouteNames.main}${_ValueAddRouteNames.valueAddChooseDevice}';
   static const valueAddSubscriptionList =
       '${_ValueAddRouteNames.main}${_ValueAddRouteNames.valueAddSubscriptionList}';
+  static const second =
+      '${_ValueAddRouteNames.main}${_ValueAddRouteNames.second}';
+  static const third =
+      '${_ValueAddRouteNames.main}${_ValueAddRouteNames.third}';
 }

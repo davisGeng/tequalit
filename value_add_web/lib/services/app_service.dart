@@ -48,12 +48,18 @@ final class AppService extends GetxService with WidgetsBindingObserver {
   /// 获取Wifi名称，需要location权限
   String get ssid => _ssid;
   String _ssid = '';
+  // 开启深度监听的RxMap（支持监控内部key的value变化）
+  RxMap nativeMsg = {}.obs; //手动触发 .refresh()
+  RxMap nativeDevicesMsg = {}.obs; //手动触发 .refresh()
+  RxMap paymentMsg = {}.obs; //手动触发 .refresh()
 
   Future<AppService> init() async {
     await _updateDeviceInfo();
     await _update();
     await _checkConnectivity();
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
+      _updateConnectionStatus,
+    );
     return this;
   }
 
@@ -79,11 +85,10 @@ final class AppService extends GetxService with WidgetsBindingObserver {
 
   void addObserver(AppServiceObserver observer) => _observers.add(observer);
 
-  void removeObserver(AppServiceObserver observer) => _observers.remove(observer);
-
+  void removeObserver(AppServiceObserver observer) =>
+      _observers.remove(observer);
 
   /// 打开系统设置页
-
 
   Future<void> _updateLifecycleState(AppLifecycleState state) async {
     // Log.t('AppLifeCycle: $state');
@@ -115,9 +120,7 @@ final class AppService extends GetxService with WidgetsBindingObserver {
     // await _updateWifiInfo();
   }
 
-  Future<void> _updateDeviceInfo() async {
-
-  }
+  Future<void> _updateDeviceInfo() async {}
 
   // Future<void> _updatePermissionStatus() async {
   //   for (final permission in checkedPermissions) {
@@ -127,10 +130,10 @@ final class AppService extends GetxService with WidgetsBindingObserver {
   //   }
   // }
 
-
   Future<void> _checkConnectivity() async {
     try {
-      List<ConnectivityResult> results = await _connectivity.checkConnectivity();
+      List<ConnectivityResult> results =
+          await _connectivity.checkConnectivity();
       _updateConnectionStatus(results);
     } catch (e) {
       Log.d('检查网络连接失败: $e');
@@ -145,7 +148,9 @@ final class AppService extends GetxService with WidgetsBindingObserver {
   }
 
   void _updateConnectionStatus(List<ConnectivityResult> results) {
-    bool currentlyConnected = results.any((result) => result != ConnectivityResult.none);
+    bool currentlyConnected = results.any(
+      (result) => result != ConnectivityResult.none,
+    );
 
     if (isNetworkAvailable.value != currentlyConnected) {
       _updateStatus(currentlyConnected);
@@ -154,7 +159,8 @@ final class AppService extends GetxService with WidgetsBindingObserver {
         Log.e("No internet connection available.");
         _wasPreviouslyConnected = false;
       } else if (!_wasPreviouslyConnected) {
-        String message = "Active connections: ${results.map((r) => r.toString()).join(', ')}";
+        String message =
+            "Active connections: ${results.map((r) => r.toString()).join(', ')}";
         Log.i(message);
         _wasPreviouslyConnected = true;
         Future.delayed(const Duration(seconds: 1), () async {
@@ -172,9 +178,21 @@ final class AppService extends GetxService with WidgetsBindingObserver {
   }
 
   Future<String> getPlatformState() async {
-
     return "25.10.30.21.30";
   }
+
+  updateNativeMsg(Map<String, dynamic> map) {
+    nativeMsg.value = map;
+    nativeMsg.refresh();
+  }
+
+  updateNativeDevicesMsg(Map<String, dynamic> map) {
+    nativeDevicesMsg.value = map;
+    nativeDevicesMsg.refresh();
+  }
+
+  updateNativePaymentMsg(Map<String, dynamic> map) {
+    paymentMsg.value = map;
+    paymentMsg.refresh();
+  }
 }
-
-
