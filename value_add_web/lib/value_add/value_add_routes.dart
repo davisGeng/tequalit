@@ -16,8 +16,8 @@ abstract class ValueAddRoutes {
   static GetPage route() {
     return GetPage(
       name: _ValueAddRouteNames.main,
-      page: () => HomePage(),
-      // binding: ValueAddIndexBinding(),
+      page: () => ValueAddIndexView(),
+      binding: ValueAddIndexBinding(),
       transition: Transition.fade,
       children: [
         GetPage(

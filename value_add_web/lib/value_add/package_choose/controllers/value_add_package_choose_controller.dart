@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:get/get.dart';
 import 'package:value_add_web/api/value_add_api.dart';
 
@@ -16,7 +17,7 @@ import '../../device_choose/views/value_add_device_choose_view.dart';
 
 class ValueAddPackageChooseController extends RouteViewController
     with LoadableWebController {
-  // final CardSwiperController swiperController = CardSwiperController();
+  final CardSwiperController swiperController = CardSwiperController();
 
   final RxList<CloudGoodsBanners> banners = <CloudGoodsBanners>[].obs;
   final selectPlanTag = "0_0".obs;
@@ -395,5 +396,26 @@ class ValueAddPackageChooseController extends RouteViewController
     } finally {
       stopLoading();
     }
+  }
+
+  bool onSwipe(
+    int previousIndex,
+    int? currentIndex,
+    CardSwiperDirection direction,
+  ) {
+    selectSwiperIndex.value = currentIndex ?? 0;
+    Log.d(
+      'The card $previousIndex was swiped to the ${direction.name}. Now the card $currentIndex is on top',
+    );
+    return true;
+  }
+
+  bool onUndo(
+    int? previousIndex,
+    int currentIndex,
+    CardSwiperDirection direction,
+  ) {
+    Log.d('The card $currentIndex was undod from the ${direction.name}');
+    return true;
   }
 }

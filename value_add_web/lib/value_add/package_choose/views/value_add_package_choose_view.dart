@@ -1,5 +1,6 @@
 import 'package:dart_extensions/dart_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 
 import 'package:get/get.dart';
 
@@ -10,6 +11,7 @@ import '../../../common/utils/js_utils.dart';
 import '../../../common/widget/basic_button.dart';
 import '../../../common/widget/empty_view.dart';
 import '../../../common/widget/loadable_web_scaffold.dart';
+import '../../../model/value_add_product_response.dart';
 import '../../value_add_routes.dart';
 import '../../widget/value_add_4g_package_card.dart';
 import '../../widget/value_add_package_card.dart';
@@ -99,11 +101,11 @@ class ValueAddPackageChooseView
       Widget _banner;
       _banner = SizedBox();
 
-      // if (controller.banners.isEmpty) {
-      //   _banner = SizedBox();
-      // } else {
-      //   _banner = _buildBannerView(context);
-      // }
+      if (controller.banners.isEmpty) {
+        _banner = SizedBox();
+      } else {
+        _banner = _buildBannerView(context);
+      }
       Widget _bottomView;
       if (controller.plansList.isEmpty) {
         _bottomView = SizedBox();
@@ -131,6 +133,7 @@ class ValueAddPackageChooseView
           controller.loadState.value.isSuccess) {
         return Column(
           children: [
+            _banner,
             Expanded(
               child: EmptyView(
                 description: 'no_available_plans_label'.tr,
@@ -197,54 +200,55 @@ class ValueAddPackageChooseView
           padding: EdgeInsets.only(left: 24, right: 24),
           width: double.maxFinite,
           height: 188,
-          child: Text("data"),
-          // CardSwiper(
-          //   controller: controller.swiperController,
-          //   cardsCount:
-          //       controller.banners.isNotEmpty ? controller.banners.length : 0,
-          //   onSwipe: controller.onSwipe,
-          //   onUndo: controller.onUndo,
-          //   numberOfCardsDisplayed: 1,
-          //   allowedSwipeDirection: AllowedSwipeDirection.symmetric(
-          //     horizontal: false,
-          //     vertical: false,
-          //   ),
-          //   backCardOffset: const Offset(0, 0),
-          //   padding: EdgeInsets.zero,
-          //   cardBuilder: (
-          //     context,
-          //     index,
-          //     horizontalThresholdPercentage,
-          //     verticalThresholdPercentage,
-          //   ) {
-          //     if (controller.banners[index].imageUrl ==
-          //         ValueAddProductServiceType.data4G.typeName) {
-          //       return GestureDetector(
-          //         child: SizedBox(
-          //           height: 188,
-          //           child: Assets.images.iconServiceData4gBanner.image(
-          //             width: double.maxFinite,
-          //             height: 188,
-          //             fit: BoxFit.fill,
-          //           ),
-          //         ),
-          //         onTap: () {},
-          //       );
-          //     } else {
-          //       return GestureDetector(
-          //         child: SizedBox(
-          //           height: 188,
-          //           child: Assets.images.iconServiceCloudBanner.image(
-          //             width: double.maxFinite,
-          //             height: 188,
-          //             fit: BoxFit.fill,
-          //           ),
-          //         ),
-          //         onTap: () {},
-          //       );
-          //     }
-          //   },
-          // ),
+          child:
+          // Text("data"),
+          CardSwiper(
+            controller: controller.swiperController,
+            cardsCount:
+                controller.banners.isNotEmpty ? controller.banners.length : 0,
+            onSwipe: controller.onSwipe,
+            onUndo: controller.onUndo,
+            numberOfCardsDisplayed: 1,
+            allowedSwipeDirection: AllowedSwipeDirection.symmetric(
+              horizontal: false,
+              vertical: false,
+            ),
+            backCardOffset: const Offset(0, 0),
+            padding: EdgeInsets.zero,
+            cardBuilder: (
+              context,
+              index,
+              horizontalThresholdPercentage,
+              verticalThresholdPercentage,
+            ) {
+              if (controller.banners[index].imageUrl ==
+                  ValueAddProductServiceType.data4G.typeName) {
+                return GestureDetector(
+                  child: SizedBox(
+                    height: 188,
+                    child: Assets.images.iconServiceData4gBanner.image(
+                      width: double.maxFinite,
+                      height: 188,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  onTap: () {},
+                );
+              } else {
+                return GestureDetector(
+                  child: SizedBox(
+                    height: 188,
+                    child: Assets.images.iconServiceCloudBanner.image(
+                      width: double.maxFinite,
+                      height: 188,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  onTap: () {},
+                );
+              }
+            },
+          ),
         ),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 24),
