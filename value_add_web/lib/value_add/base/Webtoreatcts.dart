@@ -19,37 +19,15 @@ class _WebtoreatctsState extends State<Webtoreatcts> {
   bool _isDialogShow = false;
   bool _isIframeLoading = true;
   late Size _screenSize = Size.zero;
+  String paymentBaseUrl = "http://192.168.1.110:3000";
+
   @override
   void initState() {
     super.initState();
     _paramsStore = Get.find<WebParamsStore>();
-    _listenIframeMessage();
-    _registerIframeView();
+    _registerMessageListener();
 
-    // 👉 核心修复：直接注册iframe，而非先div再替换
-    // ui.platformViewRegistry.registerViewFactory(_iframeId, (int viewId) {
-    //   // 直接创建iframe并返回，一步到位
-    //   final iframe =
-    //       html.IFrameElement()
-    //         ..id = _iframeId
-    //         ..src = "http://192.168.1.107:3000?userid=vvde&vid=123"
-    //         ..style.border = 'none'
-    //         ..style.width = '100%'
-    //         ..style.height = '100%'
-    //         // 跨域兜底配置（解决iframe加载限制）
-    //         ..allowFullscreen = true
-    //         ..allow = 'cross-origin-isolated; fullscreen'
-    //         // 监听加载状态（成功/失败都更新）
-    //         ..onLoad.listen((_) {
-    //           setState(() => _isIframeLoading = false);
-    //           debugPrint("iframe加载完成！");
-    //         })
-    //         ..onError.listen((error) {
-    //           setState(() => _isIframeLoading = false);
-    //           debugPrint("iframe加载失败：$error");
-    //         });
-    //   return iframe;
-    // });
+    _registerIframeView2();
   }
 
   @override
@@ -65,88 +43,43 @@ class _WebtoreatctsState extends State<Webtoreatcts> {
     }
   }
 
-  void _registerIframeView() {
-    // 先移除已存在的视图（避免重复注册报错）
-    // ui.platformViewRegistry.unregisterViewFactory(_iframeId);
-
+  void _registerIframeView2() {
     ui.platformViewRegistry.registerViewFactory(_iframeId, (int viewId) {
+      // 直接创建iframe并返回，一步到位
       final iframe =
           html.IFrameElement()
             ..id = _iframeId
-            // 关键：添加视口参数，让React页面识别移动端
             ..src = "http://192.168.1.110:3000?userid=vvde&vid=123"
-            // 核心修复1：重置iframe的基础样式，确保尺寸生效
             ..style.border = 'none'
             ..style.width = '100%'
             ..style.height = '100%'
-            ..style.display =
-                'block' // 避免iframe行内布局导致的尺寸问题
-            ..style.overflow =
-                'auto' // 移动端允许滚动
-            // 核心修复2：完善跨域/权限配置，解决加载限制
+            // 跨域兜底配置（解决iframe加载限制）
             ..allowFullscreen = true
-            ..allow = 'cross-origin-isolated; fullscreen; payment'
-            // 关键：设置视口适配，让React页面识别移动端
-            ..setAttribute(
-              'sandbox',
-              'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation',
-            )
-            // 监听加载状态
+            ..allow = 'cross-origin-isolated; fullscreen'
+            // 监听加载状态（成功/失败都更新）
             ..onLoad.listen((_) {
-              if (mounted) {
-                setState(() => _isIframeLoading = false);
-              }
+              setState(() => _isIframeLoading = false);
               debugPrint("iframe加载完成！");
             })
             ..onError.listen((error) {
-              if (mounted) {
-                setState(() => _isIframeLoading = false);
-              }
+              setState(() => _isIframeLoading = false);
               debugPrint("iframe加载失败：$error");
-            })
-            // 监听iframe内部错误（比如React页面报错）
-            ..addEventListener('error', (event) {
-              debugPrint("iframe内部错误：${event.toString()}");
             });
-
-      // 移动端额外处理：设置iframe的视口元标签（兜底）
-      html.document.head?.append(
-        html.MetaElement()
-          ..name = 'viewport'
-          ..content =
-              'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
-      );
-
       return iframe;
     });
   }
 
-  // 计算弹窗的适配尺寸
-  Size _getDialogSize() {
-    // 移动端（宽度<768px）：占屏幕90%宽，90%高
-    if (_screenSize.width < 768) {
-      return Size(_screenSize.width * 0.9, _screenSize.height * 0.9);
-    }
-    // 桌面端：固定宽高，保持和React页面一致
-    return const Size(540, 800);
+  void _registerMessageListener() {
+    html.window.addEventListener('message', _handleReactTSMessage);
   }
 
-  @override
-  void dispose() {
-    html.window.removeEventListener('message', _handleIframeMessage);
-    super.dispose();
-  }
-
-  // 监听B的消息（不变）
-  void _listenIframeMessage() {
-    html.window.addEventListener('message', _handleIframeMessage);
-  }
-
-  void _handleIframeMessage(html.Event event) {
+  void _handleReactTSMessage(html.Event event) {
     final html.MessageEvent msgEvent = event as html.MessageEvent;
-    if (msgEvent.origin != 'http://192.168.1.107:3000') return;
+    // if (msgEvent.origin != 'http://192.168.1.107:3000') return;
 
     final data = msgEvent.data;
+    debugPrint("接收到payment 返回数据:$data");
+
     if (data is Map && data['type'] == 'closeDialog') {
       _closeDialog();
       return;
@@ -294,5 +227,11 @@ class _WebtoreatctsState extends State<Webtoreatcts> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    html.window.removeEventListener('message', _handleReactTSMessage);
+    super.dispose();
   }
 }
