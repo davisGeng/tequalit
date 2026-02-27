@@ -19,8 +19,16 @@ class _WebtoreatctsState extends State<Webtoreatcts> {
   bool _isDialogShow = false;
   bool _isIframeLoading = true;
   late Size _screenSize = Size.zero;
-  String paymentBaseUrl = "http://192.168.1.110:3000";
-
+  String paymentBaseUrl = 
+  // "http://localhost:3001";
+  "http://0.0.0.0:3001";
+  html.IFrameElement? _iframeElement;
+  final Map<String, dynamic> _secretParams = {
+    "id": "int_hkdmr72qchg6ok8nm42",
+    "client_secret":
+        "eyJraWQiOiJjNDRjODVkMDliMDc0NmNlYTIwZmI4NjZlYzI4YWY3ZSIsImFsZyI6IkhTMjU2In0.eyJ0eXBlIjoiY2xpZW50LXNlY3JldCIsImFjY291bnRfaWQiOiI0ZjhhOTAzZS1iZjA4LTRlMjQtOTlhNi00YmVhOTlhOTUxYTIiLCJpbnRlbnRfaWQiOiJpbnRfaGtkbXI3MnFjaGc2b2s4bm00MiIsImJ1c2luZXNzX25hbWUiOiJGdW5rLCBHYXlsb3JkIGFuZCBTd2lmdCIsInBhZGMiOiJISyIsImV4cCI6MTc3MjE4NDI3MywiaWF0IjoxNzcyMTgwNjczfQ.jX7nHI5vQXp3u_tC47eFLkzrxQDVKuKNAuMqVThUVqY",
+    "currency": "USD",
+  };
   @override
   void initState() {
     super.initState();
@@ -44,12 +52,14 @@ class _WebtoreatctsState extends State<Webtoreatcts> {
   }
 
   void _registerIframeView2() {
+    String finalurl = "$paymentBaseUrl?intent_id=${_secretParams['id']}&client_secret=${_secretParams['client_secret']}&currency=USD";
     ui.platformViewRegistry.registerViewFactory(_iframeId, (int viewId) {
       // 直接创建iframe并返回，一步到位
       final iframe =
           html.IFrameElement()
             ..id = _iframeId
-            ..src = "http://192.168.1.110:3000?userid=vvde&vid=123"
+            ..src =finalurl
+                
             ..style.border = 'none'
             ..style.width = '100%'
             ..style.height = '100%'
@@ -65,6 +75,7 @@ class _WebtoreatctsState extends State<Webtoreatcts> {
               setState(() => _isIframeLoading = false);
               debugPrint("iframe加载失败：$error");
             });
+      _iframeElement = iframe;
       return iframe;
     });
   }
@@ -79,17 +90,55 @@ class _WebtoreatctsState extends State<Webtoreatcts> {
 
     final data = msgEvent.data;
     debugPrint("接收到payment 返回数据:$data");
+    if (data is Map) {
+      String type = data["type"];
+      switch (type) {
+        // 收到React B的「就绪确认」：此时发送机密参数（最佳时机）
+        case 'listenerReady':
+          debugPrint("React B已就绪，发送机密参数...");
+          _sendSecretParamsToReact();
+          break;
+        // 接收React B的初始化结果
+        case 'initSuccess':
+          debugPrint("React支付组件初始化成功：${data['msg']}");
+          break;
+        case 'initError':
+          debugPrint("React支付组件初始化失败：${data['msg']}");
+          break;
+        case 'paramsError':
+          debugPrint("React参数校验失败：${data['msg']}");
+          break;
+        case 'closeDialog':
+          _closeDialog();
+          break;
+      }
+      // if (data['type'] == 'closeDialog') {
+      //   return;
+      // } else if (data.containsKey('paymentPageStatus')) {
+      //   _paramsStore.updateStatus(
+      //     data['paymentPageStatus'],
+      //     data['timestamp']?.toString() ?? '',
+      //   );
+      // }
+    }
+  }
 
-    if (data is Map && data['type'] == 'closeDialog') {
-      _closeDialog();
+  // ========== 核心：发送机密参数给React B ==========
+  void _sendSecretParamsToReact() {
+    if (_iframeElement == null) {
+      debugPrint("iframe未加载，无法发送参数");
       return;
     }
-    if (data is Map && data.containsKey('paymentPageStatus')) {
-      _paramsStore.updateStatus(
-        data['paymentPageStatus'],
-        data['timestamp']?.toString() ?? '',
-      );
-    }
+
+    // 发送机密参数（仅发送给React B，targetOrigin严格指定）
+    _iframeElement!.contentWindow?.postMessage(
+      {
+        "type": "secretPaymentParams", // 消息类型标识
+        "data": _secretParams, // 机密参数
+      },
+      paymentBaseUrl, // 必须指定React B的地址，禁止用*
+    );
+    debugPrint("机密参数已发送");
   }
 
   void _openDialog() {
@@ -104,7 +153,7 @@ class _WebtoreatctsState extends State<Webtoreatcts> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("三级页面third"),
+        title: const Text("三级页面third web1"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Get.back(),

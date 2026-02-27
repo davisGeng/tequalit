@@ -57,11 +57,11 @@ class JsUtils {
     }
     deviceMaps = [
       {
-        "deviceId": "ubuntu_esxi-e11d94dc-3396-4398-89ec-63e364d4c234",
+        "deviceId": "ubuntu_esxi-308793a3-cae9-4734-bee9-6c71eb6edbee",
         "firmwareVersion": "1.0.96",
-        "deviceName": "hm2",
-        "deviceThirdPartId": "6cfc926ee1e6877380nbao",
-        "uuid": "1122312000233",
+        "deviceName": "hmm",
+        "deviceThirdPartId": "120001014120366d",
+        "uuid": "120001014120366d",
       },
     ];
     _registerMessageListener();

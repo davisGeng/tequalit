@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:value_add_web/WebPageSecond.dart';
 import 'package:value_add_web/main.dart';
+import 'package:value_add_web/value_add/base/ReactIframeDialog.dart';
 import 'package:value_add_web/value_add/package_choose/bindings/value_add_package_choose_binding.dart';
 import 'package:value_add_web/value_add/package_choose/views/value_add_package_choose_view.dart';
 import 'package:value_add_web/value_add/subscription_list/bindings/value_add_subscription_list_binding.dart';
@@ -16,8 +17,10 @@ abstract class ValueAddRoutes {
   static GetPage route() {
     return GetPage(
       name: _ValueAddRouteNames.main,
-      page: () => ValueAddIndexView(),
-      binding: ValueAddIndexBinding(),
+      page: () => 
+       HomePage(),
+      // ValueAddIndexView(),
+      // binding: ValueAddIndexBinding(),
       transition: Transition.fade,
       children: [
         GetPage(

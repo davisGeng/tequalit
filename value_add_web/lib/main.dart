@@ -72,7 +72,7 @@ final class AppTask {
 
     // ✅ 1. 初始化SharedPreferences（Dio拦截器中获取Token需要）
     final sp = await SharedPreferences.getInstance();
-    sp.setString("token", "625397a3dce094dc3c8f0db723a158f911ce0ff0");
+    sp.setString("token", "001bf7e2e2c072ebb6f44c22e53cd5eb8961d061");
 
     ValueAddApi.instance.init("zh");
   }
@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // 初始化：注册【接收原生A消息】的JS方法（供A调用）
-    _registerMessageListener();
+    // _registerMessageListener();
   }
 
   /// 核心1：注册JS全局方法
