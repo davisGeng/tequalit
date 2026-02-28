@@ -256,7 +256,7 @@ class _WebtoreatctsState extends State<Webtoreatcts> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  CircularProgressIndicator(strokeWidth: 16),
+                                  CircularProgressIndicator(strokeWidth: 2),
                                   SizedBox(width: 8),
                                   Text(
                                     "加载中...",

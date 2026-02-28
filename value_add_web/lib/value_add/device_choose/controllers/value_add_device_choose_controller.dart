@@ -1,3 +1,5 @@
+import 'dart:ui_web' as ui;
+
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +16,9 @@ import '../../../model/value_add_create_order_response.dart';
 import '../../../model/value_add_product_response.dart';
 import '../../../common/controller/route_view_controller.dart';
 import '../../../services/log_service.dart';
+
+import 'dart:html' as html;
+
 
 enum PayProgress { undo, success, fail, cancel }
 
@@ -42,11 +47,30 @@ class ValueAddDeviceChooseController extends RouteViewController
   String userRegion = "";
   final loadState = LoadState.idle().obs;
 
+  final isPaymentDialogShow = false.obs;
+
+  late final WebParamsStore _paramsStore;
+  final String iframeId = 'react-b-iframe';
+  final isIframeLoading = true.obs;
+  String paymentBaseUrl = 
+  // "http://localhost:3001";
+  "http://0.0.0.0:3001";
+  html.IFrameElement? _iframeElement;
+  final Map<String, dynamic> _secretParams = {
+    "id": "int_hkdmr72qchg6ok8nm42",
+    "client_secret":
+        "eyJraWQiOiJjNDRjODVkMDliMDc0NmNlYTIwZmI4NjZlYzI4YWY3ZSIsImFsZyI6IkhTMjU2In0.eyJ0eXBlIjoiY2xpZW50LXNlY3JldCIsImFjY291bnRfaWQiOiI0ZjhhOTAzZS1iZjA4LTRlMjQtOTlhNi00YmVhOTlhOTUxYTIiLCJpbnRlbnRfaWQiOiJpbnRfaGtkbXI3MnFjaGc2b2s4bm00MiIsImJ1c2luZXNzX25hbWUiOiJGdW5rLCBHYXlsb3JkIGFuZCBTd2lmdCIsInBhZGMiOiJISyIsImV4cCI6MTc3MjE4NDI3MywiaWF0IjoxNzcyMTgwNjczfQ.jX7nHI5vQXp3u_tC47eFLkzrxQDVKuKNAuMqVThUVqY",
+    "currency": "USD",
+  };
+
   @override
   void onInit() {
     showLoadingWidget.value = false;
     super.onInit();
     refreshData();
+    _registerMessageListener();
+
+    _registerIframeView();
   }
 
   @override
@@ -62,7 +86,7 @@ class ValueAddDeviceChooseController extends RouteViewController
   @override
   void onDisAppear(bool isLastDisAppear, bool isHidden) {
     Log.d("goAirwallexAndPayOrder back onDisAppear");
-
+    html.window.removeEventListener('message', _handleReactTSMessage);
     super.onDisAppear(isLastDisAppear, isHidden);
   }
 
@@ -168,7 +192,8 @@ class ValueAddDeviceChooseController extends RouteViewController
         onTap: (v) async {
           // selectPayPlatform = paymentChannels[v];
           Get.back();
-          onConformTap.call(paymentChannels[v].code ?? "", false);
+          openPaymentDialog();
+          // onConformTap.call(paymentChannels[v].code ?? "", false);
           //开始下单，然后支付
           // await subOrder(context, paymentChannels[v].code, false);
         },
@@ -295,52 +320,101 @@ class ValueAddDeviceChooseController extends RouteViewController
     startLoading();
 
     await Future.delayed(Duration(seconds: 2));
-    // try {
-    //   String paymentChannel = suborderResponse?.paymentChannel ?? "";
-    //   if (paymentChannel.contains("airwallex")) {
-    //     RetrievePaymentIntentReponse res = await AirwallexManager.instance
-    //         .retrieveAPaymentIntent(suborderResponse?.intentId ?? "");
-    //     Log.i(
-    //       "retryGetPayDetail with intentId:${suborderResponse?.intentId} res:${res.toJson()}",
-    //     );
-    //     Log.i(
-    //       "retryGetPayDetail with last attemp:${res.latestPaymentAttempt?.toJson()} }",
-    //     );
-    //
-    //     String status = res.status ?? "";
-    //     //         出现在Intent刚创建的场景下，一般代表支付请求已创建，但客户尚未执行任何操作。
-    //     // 备注：若confirm过后看到该状态代表此次消费者的购买行为失败。如果需要了解是失败原因 可通过查询Intent接口返回的“latest_payment_attempt.failure_code”来判断。
-    //     if (status.equalsIgnoreCase("REQUIRES_PAYMENT_METHOD")) {
-    //       LatestPaymentAttempt? latestPaymentAttempt = res.latestPaymentAttempt;
-    //
-    //       if (latestPaymentAttempt != null) {
-    //         String attemptStatus = latestPaymentAttempt.status ?? "";
-    //         String failureCode = latestPaymentAttempt.failureCode ?? "";
-    //         // authentication_declined: 人脸或者3D验证失败
-    //         // issuer_declined 授权失败
-    //         if (failureCode.isNotEmpty ||
-    //             attemptStatus.equalsIgnoreCase("failed")) {
-    //           Get.back(result: attemptStatus);
-    //         } else {
-    //           // BasicToast.error("general_err".tr);
-    //           Get.back(result: "fail");
-    //         }
-    //       } else {
-    //         Get.back(result: "fail");
-    //       }
-    //     } else if (status.equalsIgnoreCase("SUCCEEDED")) {
-    //       payProgress.value = PayProgress.success;
-    //     } else {
-    //       Get.back(result: "fail");
-    //     }
-    //   } else {
-    //     //paypal
-    //     Get.back(result: "fail");
-    //   }
-    // } catch (e) {
-    //   stopLoading();
-    // } finally {
-    //   stopLoading();
-    // }
+    
   }
+
+
+
+  void _registerIframeView() {
+    String finalurl = "$paymentBaseUrl?intent_id=${_secretParams['id']}&client_secret=${_secretParams['client_secret']}&currency=USD";
+    ui.platformViewRegistry.registerViewFactory(iframeId, (int viewId) {
+      // 直接创建iframe并返回，一步到位
+      final iframe =
+          html.IFrameElement()
+            ..id = iframeId
+            ..src =finalurl
+                
+            ..style.border = 'none'
+            ..style.width = '100%'
+            ..style.height = '100%'
+            // 跨域兜底配置（解决iframe加载限制）
+            ..allowFullscreen = true
+            ..allow = 'cross-origin-isolated; fullscreen'
+            // 监听加载状态（成功/失败都更新）
+            ..onLoad.listen((_) {
+              isIframeLoading.value = false;
+              debugPrint("iframe加载完成！");
+            })
+            ..onError.listen((error) {
+              isIframeLoading.value = false;
+              debugPrint("iframe加载失败：$error");
+            });
+      _iframeElement = iframe;
+      return iframe;
+    });
+  }
+
+  void _registerMessageListener() {
+    html.window.addEventListener('message', _handleReactTSMessage);
+  }
+
+  void _handleReactTSMessage(html.Event event) {
+    final html.MessageEvent msgEvent = event as html.MessageEvent;
+    // if (msgEvent.origin != 'http://192.168.1.107:3000') return;
+
+    final data = msgEvent.data;
+    debugPrint("接收到payment 返回数据:$data");
+    if (data is Map) {
+      String type = data["type"];
+      switch (type) {
+        // 收到React B的「就绪确认」：此时发送机密参数（最佳时机）
+        case 'listenerReady':
+          debugPrint("React B已就绪，发送机密参数...");
+          _sendSecretParamsToReact();
+          break;
+        // 接收React B的初始化结果
+        case 'initSuccess':
+          debugPrint("React支付组件初始化成功：${data['msg']}");
+          break;
+        case 'initError':
+          debugPrint("React支付组件初始化失败：${data['msg']}");
+          break;
+        case 'paramsError':
+          debugPrint("React参数校验失败：${data['msg']}");
+          break;
+        case 'closeDialog':
+          closePaymentDialog();
+          break;
+      }
+     
+    }
+  }
+
+  // ========== 核心：发送机密参数给React B ==========
+  void _sendSecretParamsToReact() {
+    if (_iframeElement == null) {
+      debugPrint("iframe未加载，无法发送参数");
+      return;
+    }
+
+    // 发送机密参数（仅发送给React B，targetOrigin严格指定）
+    _iframeElement!.contentWindow?.postMessage(
+      {
+        "type": "secretPaymentParams", // 消息类型标识
+        "data": _secretParams, // 机密参数
+      },
+      paymentBaseUrl, // 必须指定React B的地址，禁止用*
+    );
+    debugPrint("机密参数已发送");
+  }
+
+  void openPaymentDialog() {
+    isPaymentDialogShow.value = true;
+  }
+
+  void closePaymentDialog() {
+    isPaymentDialogShow.value = false;
+
+  }
+
 }

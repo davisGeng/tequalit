@@ -23,7 +23,10 @@ class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
         backgroundColor: AppTheme.current.colors.inverseBackground,
         body: Obx(() {
           if (controller.payProgress.value == PayProgress.undo) {
-            return _buildRefreshView(context);
+            return Stack(children: [
+              _buildRefreshView(context),
+              _paymentDialog(context)
+            ],);
           }
           return _buildPayResultView(context);
         }),
@@ -244,5 +247,99 @@ class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
         ),
       ),
     );
+  }
+  Widget _paymentDialog(BuildContext context){
+    return  Obx((){
+      if(controller.isPaymentDialogShow.value){
+        return Container(
+              color: Colors.black.withOpacity(0.5),
+              width: double.infinity,
+              height: double.infinity,
+              child: GestureDetector(
+                onTap: controller.closePaymentDialog,
+                child: Center(
+                  child: GestureDetector(
+                    onTap: () {}, // 阻止透传
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black12, blurRadius: 10),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          // 标题栏
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: Colors.grey),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "React-TS项目B",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: controller.closePaymentDialog,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // 👉 关键：给HtmlElementView设置强制尺寸约束
+                          Expanded(
+                            child: Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              // HtmlElementView直接使用注册的iframe
+                              child: HtmlElementView(
+                                viewType: controller.iframeId,
+                                // 强制设置尺寸（避免视图不渲染）
+                                // layoutDirection: TextDirection.ltr,
+                              ),
+                            ),
+                          ),
+
+                          // 加载状态提示（移到底部，不遮挡iframe）
+                          if (controller.isIframeLoading.value)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CircularProgressIndicator(strokeWidth: 2),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "加载中...",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+      }
+      return SizedBox();
+    });
   }
 }
