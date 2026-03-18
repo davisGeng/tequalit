@@ -23,10 +23,7 @@ class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
         backgroundColor: AppTheme.current.colors.inverseBackground,
         body: Obx(() {
           if (controller.payProgress.value == PayProgress.undo) {
-            return Stack(children: [
-              _buildRefreshView(context),
-              _paymentDialog(context)
-            ],);
+            return Stack(children: [_buildRefreshView(context), _paymentDialog(context)]);
           }
           return _buildPayResultView(context);
         }),
@@ -51,27 +48,19 @@ class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
             Expanded(
               child: EmptyView(
                 description: 'general_err'.tr,
-                topImage: Assets.images.imgDeviceConnectError.image(
-                  width: 150,
-                  height: 150,
-                ),
+                topImage: Assets.images.imgDeviceConnectError.image(width: 150, height: 150),
                 showBtn: false,
               ),
             ),
             _bottomView,
           ],
         );
-      } else if (controller.devices.isEmpty &&
-          controller.loadState.value.isSuccess) {
+      } else if (controller.devices.isEmpty && controller.loadState.value.isSuccess) {
         return EmptyView(
           description: 'device_list_empty_label'.tr,
-          topImage: Assets.images.imgDeviceConnectEmpty.image(
-            width: 150,
-            height: 150,
-          ),
+          topImage: Assets.images.imgDeviceConnectEmpty.image(width: 150, height: 150),
         );
-      } else if (controller.devices.isNotEmpty &&
-          controller.loadState.value.isSuccess) {
+      } else if (controller.devices.isNotEmpty && controller.loadState.value.isSuccess) {
         return Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -83,9 +72,7 @@ class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      controller.devices.isEmpty
-                          ? ''
-                          : 'choose_device_instruction'.tr,
+                      controller.devices.isEmpty ? '' : 'choose_device_instruction'.tr,
                       style: TextStyle(fontSize: 12, color: Color(0xFF999999)),
                     ).marginOnly(top: 20, bottom: 8),
                     Expanded(child: _buildList(context)),
@@ -192,20 +179,11 @@ class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  image
-                      .image(width: 130, height: 130, fit: BoxFit.fill)
-                      .marginOnly(bottom: 35),
-                  Text(
-                    status,
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                  ).marginOnly(bottom: 20),
+                  image.image(width: 130, height: 130, fit: BoxFit.fill).marginOnly(bottom: 35),
+                  Text(status, style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)).marginOnly(bottom: 20),
                   Text(
                     description,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF999999),
-                    ),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: Color(0xFF999999)),
                   ),
                 ],
               ),
@@ -227,19 +205,12 @@ class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
       child: Obx(
         () => BasicButton(
           style: BasicButtonStyle.black1,
-          title:
-              controller.payProgress.value == PayProgress.fail
-                  ? 'retry_btn'.tr
-                  : 'done_btn'.tr,
+          title: controller.payProgress.value == PayProgress.fail ? 'retry_btn'.tr : 'done_btn'.tr,
           onPressed: () {
             if (controller.payProgress.value == PayProgress.success) {
               Get.back();
             } else if (controller.payProgress.value == PayProgress.fail) {
-              controller.subOrder(
-                context,
-                controller.suborderResponse?.paymentChannel,
-                true,
-              );
+              controller.subOrder(context, controller.suborderResponse?.paymentChannel, true);
             }
           },
           height: 44,
@@ -248,96 +219,76 @@ class ValueAddDeviceChooseView extends GetView<ValueAddDeviceChooseController> {
       ),
     );
   }
-  Widget _paymentDialog(BuildContext context){
-    return  Obx((){
-      if(controller.isPaymentDialogShow.value){
+
+  Widget _paymentDialog(BuildContext context) {
+    return Obx(() {
+      if (controller.isPaymentDialogShow.value) {
         return Container(
-              color: Colors.black.withOpacity(0.5),
-              width: double.infinity,
-              height: double.infinity,
+          color: Colors.black.withOpacity(0.5),
+          width: double.infinity,
+          height: double.infinity,
+          child: GestureDetector(
+            onTap: controller.closePaymentDialog,
+            child: Center(
               child: GestureDetector(
-                onTap: controller.closePaymentDialog,
-                child: Center(
-                  child: GestureDetector(
-                    onTap: () {}, // 阻止透传
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      height: MediaQuery.of(context).size.height * 0.8,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black12, blurRadius: 10),
-                        ],
+                onTap: () {}, // 阻止透传
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                  ),
+                  child: Column(
+                    children: [
+                      // 标题栏
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white))),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text("正在支付", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                            IconButton(icon: const Icon(Icons.close), onPressed: controller.closePaymentDialog),
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        children: [
-                          // 标题栏
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: Colors.grey),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  "React-TS项目B",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.close),
-                                  onPressed: controller.closePaymentDialog,
-                                ),
-                              ],
-                            ),
-                          ),
 
-                          // 👉 关键：给HtmlElementView设置强制尺寸约束
-                          Expanded(
-                            child: Container(
-                              width: double.infinity,
-                              height: double.infinity,
-                              // HtmlElementView直接使用注册的iframe
-                              child: HtmlElementView(
-                                viewType: controller.iframeId,
-                                // 强制设置尺寸（避免视图不渲染）
-                                // layoutDirection: TextDirection.ltr,
-                              ),
-                            ),
+                      // 👉 关键：给HtmlElementView设置强制尺寸约束
+                      Expanded(
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: double.infinity,
+                          // HtmlElementView直接使用注册的iframe
+                          child: HtmlElementView(
+                            viewType: controller.iframeId,
+                            // 强制设置尺寸（避免视图不渲染）
+                            // layoutDirection: TextDirection.ltr,
                           ),
-
-                          // 加载状态提示（移到底部，不遮挡iframe）
-                          if (controller.isIframeLoading.value)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  CircularProgressIndicator(strokeWidth: 2),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    "加载中...",
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                ],
-                              ),
-                            ),
-                        ],
+                        ),
                       ),
-                    ),
+
+                      // 加载状态提示（移到底部，不遮挡iframe）
+                      if (controller.isIframeLoading.value)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircularProgressIndicator(strokeWidth: 2),
+                              SizedBox(width: 8),
+                              Text("加载中...", style: TextStyle(fontSize: 14)),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
-            );
+            ),
+          ),
+        );
       }
       return SizedBox();
     });

@@ -25,6 +25,7 @@ samples, guidance on mobile development, and a full API reference.
 项目启动
 - flutter run -d chrome --web-port 8081 --web-hostname 0.0.0.0
 - flutter run -d chrome --web-port 8080
+flutter run -d web-server --web-host 0.0.0.0 --web-port 8080
 生成vasApi.g.dart
 - # 生成代码（--delete-conflicting-outputs 用于解决文件冲突）
 flutter pub run build_runner build --delete-conflicting-outputs

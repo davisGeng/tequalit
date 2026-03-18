@@ -7,13 +7,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:value_add_web/common/utils/js_utils.dart';
-import 'package:value_add_web/routes/routes.dart';
 import 'package:value_add_web/services/app_service.dart';
-import 'package:value_add_web/services/log_service.dart';
 import 'package:value_add_web/services/storage_service.dart';
 
-import 'WebPageSecond.dart';
-import 'WebToReatcTs2.dart';
 import 'api/value_add_api.dart';
 import 'assets/app_theme.dart';
 import 'common/utils/app_translations.dart';
@@ -34,10 +30,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'SightSys',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.white,
-          primary: AppTheme.current.colors.main,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white, primary: AppTheme.current.colors.main),
         useMaterial3: true,
       ),
       getPages: [
@@ -46,9 +39,7 @@ class MyApp extends StatelessWidget {
       ],
       initialRoute: ValueAddPaths.main,
       translations: AppTranslations(),
-      locale:
-          LanguageManager.instance.newLocale ??
-          LanguageManager.instance.getDefaultLocale(),
+      locale: LanguageManager.instance.newLocale ?? LanguageManager.instance.getDefaultLocale(),
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -72,7 +63,8 @@ final class AppTask {
 
     // ✅ 1. 初始化SharedPreferences（Dio拦截器中获取Token需要）
     final sp = await SharedPreferences.getInstance();
-    sp.setString("token", "001bf7e2e2c072ebb6f44c22e53cd5eb8961d061");
+    // f9b670b8b4b60062c86de3f215c2c46c1ac0b585
+    // sp.setString("token", "");
 
     ValueAddApi.instance.init("zh");
   }
@@ -110,9 +102,7 @@ class _HomePageState extends State<HomePage> {
     };
     js.context["receiveNativeDeviceList"] = (String jsonStr) {
       // 解析原生A传来的JSON字符串
-      List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(
-        json.decode(jsonStr),
-      );
+      List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(json.decode(jsonStr));
       debugPrint("✅ Web-B收到原生A的消息：${_deviceList.length}");
       // 更新页面UI
       setState(() {
@@ -134,11 +124,7 @@ class _HomePageState extends State<HomePage> {
       return; // 通道不存在，直接终止方法
     }
     // 1. 构造消息体（格式不变，与A端约定一致）
-    final Map<String, dynamic> sendData = {
-      "type": type,
-      "content": "我是Web-B发来的消息，请求原生显示提示",
-      "from": "flutter_web_b",
-    };
+    final Map<String, dynamic> sendData = {"type": type, "content": "我是Web-B发来的消息，请求原生显示提示", "from": "flutter_web_b"};
     String jsonStr = json.encode(sendData);
 
     // ✅ 正确写法（分两步调用：先获取通道对象，再调用postMessage）
@@ -182,9 +168,7 @@ class _HomePageState extends State<HomePage> {
               // Web→Native 发送消息按钮
               ElevatedButton(
                 onPressed: _sendMessageToNative,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(300, 50),
-                ),
+                style: ElevatedButton.styleFrom(minimumSize: const Size(300, 50)),
                 child: const Text("Web-B → 发送消息到原生A"),
               ),
               const SizedBox(height: 20),

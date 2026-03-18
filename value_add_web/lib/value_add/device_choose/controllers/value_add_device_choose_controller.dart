@@ -19,11 +19,9 @@ import '../../../services/log_service.dart';
 
 import 'dart:html' as html;
 
-
 enum PayProgress { undo, success, fail, cancel }
 
-class ValueAddDeviceChooseController extends RouteViewController
-    with LoadableWebController {
+class ValueAddDeviceChooseController extends RouteViewController with LoadableWebController {
   ValueAddDeviceChooseController(this.plans, this.prices);
   Plans plans;
   Prices prices;
@@ -52,34 +50,22 @@ class ValueAddDeviceChooseController extends RouteViewController
   late final WebParamsStore _paramsStore;
   final String iframeId = 'react-b-iframe';
   final isIframeLoading = true.obs;
-  String paymentBaseUrl = 
-  // "http://localhost:3001";
-  "http://0.0.0.0:3001";
+  String paymentBaseUrl =
+      // "http://localhost:3001";
+      "http://0.0.0.0:3001";
   html.IFrameElement? _iframeElement;
-  final Map<String, dynamic> _secretParams = {
-    "id": "int_hkdmr72qchg6ok8nm42",
-    "client_secret":
-        "eyJraWQiOiJjNDRjODVkMDliMDc0NmNlYTIwZmI4NjZlYzI4YWY3ZSIsImFsZyI6IkhTMjU2In0.eyJ0eXBlIjoiY2xpZW50LXNlY3JldCIsImFjY291bnRfaWQiOiI0ZjhhOTAzZS1iZjA4LTRlMjQtOTlhNi00YmVhOTlhOTUxYTIiLCJpbnRlbnRfaWQiOiJpbnRfaGtkbXI3MnFjaGc2b2s4bm00MiIsImJ1c2luZXNzX25hbWUiOiJGdW5rLCBHYXlsb3JkIGFuZCBTd2lmdCIsInBhZGMiOiJISyIsImV4cCI6MTc3MjE4NDI3MywiaWF0IjoxNzcyMTgwNjczfQ.jX7nHI5vQXp3u_tC47eFLkzrxQDVKuKNAuMqVThUVqY",
-    "currency": "USD",
-  };
 
   @override
   void onInit() {
-    showLoadingWidget.value = false;
+    showLoadingWidget.value = true;
     super.onInit();
-    refreshData();
     _registerMessageListener();
-
-    _registerIframeView();
   }
 
   @override
   void onAppear(bool isFirstAppear) {
     Log.d("goAirwallexAndPayOrder back onAppear :showWeb:$openPaymentWeb");
-    if (suborderResponse != null && openPaymentWeb) {
-      retryGetPayDetail();
-      // checkOrderStatus(suborderResponse?.orderNumber);
-    }
+
     super.onAppear(isFirstAppear);
   }
 
@@ -112,10 +98,7 @@ class ValueAddDeviceChooseController extends RouteViewController
     final deviceMaps = JsUtils.instance.deviceMaps;
 
     if (deviceMaps.isNotEmpty) {
-      final res = await ValueAddApi.instance.getValueAddAvailableDeviceByPlan(
-        plans.planId ?? "",
-        deviceMaps,
-      );
+      final res = await ValueAddApi.instance.getValueAddAvailableDeviceByPlan(plans.planId ?? "", deviceMaps);
       Log.d("Refresh events over .device length:${devices.length}");
       if (res != null) {
         List<DeviceAvailableResults> results = res.results ?? [];
@@ -144,10 +127,7 @@ class ValueAddDeviceChooseController extends RouteViewController
   }
 
   Future choosePaymentMethodDialog(BuildContext context) async {
-    await choosePaymentMethodAction(context, plans, (
-      channelCode,
-      isRepay,
-    ) async {
+    await choosePaymentMethodAction(context, plans, (channelCode, isRepay) async {
       subOrder(context, channelCode, isRepay);
     });
   }
@@ -161,29 +141,19 @@ class ValueAddDeviceChooseController extends RouteViewController
     int checkIndex = 0;
 
     // 获取支付渠道列表（空安全处理保持不变）
-    List<SupportedPaymentChannels> paymentChannels =
-        plans.paymentConfig?.supportedPaymentChannels ?? [];
+    List<SupportedPaymentChannels> paymentChannels = plans.paymentConfig?.supportedPaymentChannels ?? [];
 
     if (paymentChannels.isNotEmpty) {
       // 用 indexWhere 直接找到第一个 isDefault 为 true 的索引
       // 若没有找到，返回 -1
-      final defaultIndex = paymentChannels.indexWhere(
-        (channel) => channel.isDefault == true,
-      );
+      final defaultIndex = paymentChannels.indexWhere((channel) => channel.isDefault == true);
       // 若存在默认渠道，更新索引；否则保持默认0
       if (defaultIndex != -1) {
         checkIndex = defaultIndex;
       }
     }
     if (paymentChannels.isEmpty) {
-      paymentChannels = [
-        SupportedPaymentChannels(
-          code: "airwallex",
-          name: "信用卡",
-          icon: "",
-          isDefault: true,
-        ),
-      ];
+      paymentChannels = [SupportedPaymentChannels(code: "airwallex", name: "信用卡", icon: "", isDefault: true)];
     }
     await Get.bottomSheet(
       PayMethodsDialog(
@@ -192,10 +162,9 @@ class ValueAddDeviceChooseController extends RouteViewController
         onTap: (v) async {
           // selectPayPlatform = paymentChannels[v];
           Get.back();
-          openPaymentDialog();
           // onConformTap.call(paymentChannels[v].code ?? "", false);
           //开始下单，然后支付
-          // await subOrder(context, paymentChannels[v].code, false);
+          await subOrder(context, paymentChannels[v].code, false);
         },
       ),
       isScrollControlled: true,
@@ -203,17 +172,12 @@ class ValueAddDeviceChooseController extends RouteViewController
   }
 
   // 下单
-  Future subOrder(
-    BuildContext context,
-    String? channelCode,
-    bool isRepayOrder,
-  ) async {
+  Future subOrder(BuildContext context, String? channelCode, bool isRepayOrder) async {
     if (channelCode == null) {
       return;
     }
 
     startLoading();
-    // await initService();
 
     try {
       DeviceAvailableResults device = devices[selectIndex.value];
@@ -229,76 +193,20 @@ class ValueAddDeviceChooseController extends RouteViewController
       stopLoading();
       Log.d("createOrder err:${e.toString()}");
     }
+    stopLoading();
     try {
       if (suborderResponse == null) {
         BasicSnack.error("create_order_failed_err".tr);
         return;
       }
-      // SupavizPaymentManager.instance.addLocalCloudStorageOrder(
-      //   orderNo: suborderResponse?.orderNumber ?? "",
-      //   platform: channelCode,
-      // );
 
-      //开始支付
-      if (channelCode.contains("paypal")) {
-        Log.d("paypal hmOrderId:${suborderResponse?.orderNumber}");
-
-        //跳转网页m suborderResponse?.packageValue ??
-        // await PrivacyPolicyHelper.openWebViewPageWithUrl(
-        //   context,
-        //   "paypal_label".tr,
-        //   "",
-        //   // "https://www.paypal.com/checkoutnow?token=4WS556916Y4460845",
-        // );
-        openPaymentWeb = true;
-        Log.d("webview end **");
-      } else if (channelCode.contains("airwallex")) {
-        //ios 结果返回在appear 里捕获
-        openPaymentWeb = true;
-        // if (Platform.isIOS) {
-        //   stopLoading();
-        // }
-        // PaymentResultExtend? resultExtend = await SupavizPaymentManager.instance
-        //     .payWithAirwallexV1(
-        //       orderNumber: suborderResponse?.orderNumber ?? "",
-        //       totalAmount: suborderResponse?.totalAmount ?? 0,
-        //       currency: suborderResponse?.currency ?? "",
-        //       intentId: suborderResponse?.intentId ?? "",
-        //       clientSecret: suborderResponse?.clientSecret ?? "",
-        //       returnUrl: suborderResponse?.returnUrl ?? "",
-        //     );
-        //
-        // openPaymentWeb = false;
-        // Log.d(
-        //   "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result:${resultExtend.toString()}",
-        // );
-        //
-        // if (resultExtend == null) {
-        //   Log.d(
-        //     "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result:null",
-        //   );
-        //
-        //   Get.back(result: "fail");
-        //   return;
-        // }
-        // await Future.delayed(Duration(seconds: 1));
-        // if (resultExtend.status.toLowerCase().startsWith("succ")) {
-        //   Log.d(
-        //     "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result: ssss,payprogress:${payProgress.value.name}",
-        //   );
-        //   //todo  ios 进入当前页面，第一个支付弹窗被下拉消失后，第二次支付成功或者失败，或者下拉消失时会自动返回上级页面
-        //
-        //   //成功
-        //   payProgress.value = PayProgress.success;
-        // } else {
-        //   Log.d(
-        //     "**subscripbeGoodsAction: orderNo:${suborderResponse?.orderNumber},result:fffff",
-        //   );
-        //
-        //   //fail
-        //   Get.back(result: "fail");
-        // }
-      }
+      _registerIframeView(
+        suborderResponse?.intentId ?? "",
+        suborderResponse?.clientSecret ?? "",
+        suborderResponse?.currency ?? "",
+      );
+      // html.window.removeEventListener('message', _handleReactTSMessage);
+      // _registerMessageListener();
     } catch (err) {
       Log.d("**subscripbeGoodsAction err:${err.toString()}");
 
@@ -320,20 +228,16 @@ class ValueAddDeviceChooseController extends RouteViewController
     startLoading();
 
     await Future.delayed(Duration(seconds: 2));
-    
   }
 
-
-
-  void _registerIframeView() {
-    String finalurl = "$paymentBaseUrl?intent_id=${_secretParams['id']}&client_secret=${_secretParams['client_secret']}&currency=USD";
+  void _registerIframeView(String intentId, String clientSecret, String currency) {
+    // String finalurl = "$paymentBaseUrl?intent_id=$intentId&client_secret=$clientSecret&currency=$currency";
     ui.platformViewRegistry.registerViewFactory(iframeId, (int viewId) {
       // 直接创建iframe并返回，一步到位
       final iframe =
           html.IFrameElement()
             ..id = iframeId
-            ..src =finalurl
-                
+            ..src = paymentBaseUrl
             ..style.border = 'none'
             ..style.width = '100%'
             ..style.height = '100%'
@@ -352,6 +256,7 @@ class ValueAddDeviceChooseController extends RouteViewController
       _iframeElement = iframe;
       return iframe;
     });
+    isPaymentDialogShow.value = true;
   }
 
   void _registerMessageListener() {
@@ -364,29 +269,44 @@ class ValueAddDeviceChooseController extends RouteViewController
 
     final data = msgEvent.data;
     debugPrint("接收到payment 返回数据:$data");
+
     if (data is Map) {
-      String type = data["type"];
+      // 1. 从Map中取出type字符串，转换为枚举
+      final String? typeStr = data["type"];
+      final PaymentMessageType type = PaymentMessageType.fromString(typeStr);
+
+      // 2. 基于枚举的switch判断（类型安全+可读性更强）
       switch (type) {
-        // 收到React B的「就绪确认」：此时发送机密参数（最佳时机）
-        case 'listenerReady':
-          debugPrint("React B已就绪，发送机密参数...");
+        case PaymentMessageType.cardElementReady:
+          debugPrint("React B已就绪,发送机密参数...");
           _sendSecretParamsToReact();
           break;
-        // 接收React B的初始化结果
-        case 'initSuccess':
-          debugPrint("React支付组件初始化成功：${data['msg']}");
+        case PaymentMessageType.initSuccess:
+          debugPrint("React支付组件初始化成功: ${data['msg']}");
           break;
-        case 'initError':
-          debugPrint("React支付组件初始化失败：${data['msg']}");
+        case PaymentMessageType.initError:
+          debugPrint("React支付组件初始化失败: ${data['msg']}");
           break;
-        case 'paramsError':
-          debugPrint("React参数校验失败：${data['msg']}");
+        case PaymentMessageType.paramsError:
+          debugPrint("React参数校验失败: ${data['msg']}");
           break;
-        case 'closeDialog':
+        // 合并相同处理逻辑的case：关闭弹窗
+        case PaymentMessageType.closeDialog:
           closePaymentDialog();
           break;
+        case PaymentMessageType.paySuccess:
+          closePaymentDialog();
+          payProgress.value = PayProgress.success;
+          break;
+        case PaymentMessageType.payFail:
+          closePaymentDialog();
+          payProgress.value = PayProgress.fail;
+          break;
+        // 兜底处理未知类型
+        case PaymentMessageType.unknown:
+          debugPrint("收到未知类型的消息: $typeStr，原始数据: $data");
+          break;
       }
-     
     }
   }
 
@@ -400,8 +320,12 @@ class ValueAddDeviceChooseController extends RouteViewController
     // 发送机密参数（仅发送给React B，targetOrigin严格指定）
     _iframeElement!.contentWindow?.postMessage(
       {
-        "type": "secretPaymentParams", // 消息类型标识
-        "data": _secretParams, // 机密参数
+        "type": "paymentParams",
+        "params": {
+          "intentId": suborderResponse?.intentId ?? "", // 你的intentId
+          "clientSecret": suborderResponse?.clientSecret ?? "", // 你的clientSecret
+          "currency": suborderResponse?.currency ?? "", // 币种
+        }, // 机密参数
       },
       paymentBaseUrl, // 必须指定React B的地址，禁止用*
     );
@@ -414,7 +338,29 @@ class ValueAddDeviceChooseController extends RouteViewController
 
   void closePaymentDialog() {
     isPaymentDialogShow.value = false;
-
   }
+}
 
+// 建议放在类外部或单独的constants文件中
+enum PaymentMessageType {
+  cardElementReady('cardElementReady'),
+  initSuccess('initSuccess'),
+  initError('initError'),
+  paramsError('paramsError'),
+  closeDialog('closeDialog'),
+  paySuccess('paySuccess'),
+  payFail('payFail'),
+  unknown('unknown'); // 兜底未知类型
+
+  // 枚举值对应的原始字符串
+  final String value;
+  const PaymentMessageType(this.value);
+
+  // 从字符串转换为枚举（处理null/未知类型）
+  static PaymentMessageType fromString(String? value) {
+    return values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => unknown, // 未知类型返回unknown
+    );
+  }
 }

@@ -42,10 +42,7 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
       if (controller.loadState.value.isFailure) {
         return EmptyView(
           description: 'general_err'.tr,
-          topImage: Assets.images.imgDeviceConnectError.image(
-            width: 150,
-            height: 150,
-          ),
+          topImage: Assets.images.imgDeviceConnectError.image(width: 150, height: 150),
           showBtn: true,
           bottomBtn: true,
           bottomParentBgColor: Colors.white,
@@ -55,14 +52,10 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
             await controller.refreshData();
           },
         );
-      } else if (controller.productItems.isEmpty &&
-          controller.loadState.value.isSuccess) {
+      } else if (controller.productItems.isEmpty && controller.loadState.value.isSuccess) {
         return EmptyView(
           description: ''.tr,
-          topImage: Assets.images.imgDeviceConnectEmpty.image(
-            width: 150,
-            height: 150,
-          ),
+          topImage: Assets.images.imgDeviceConnectEmpty.image(width: 150, height: 150),
           showBtn: false,
         );
       }
@@ -91,13 +84,7 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
           // 左侧图标
           Obx(() {
             if (controller.fromPageType.value != FromPageType.valueAddIndex) {
-              return Icon(
-                    Platform.isAndroid
-                        ? Icons.arrow_back
-                        : Icons.arrow_back_ios,
-                    color: Colors.black,
-                    size: 24,
-                  )
+              return Icon(Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios, color: Colors.black, size: 24)
                   .onTap(() {
                     Get.back();
                   })
@@ -110,10 +97,7 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'services_page_title'.tr,
-                  style: AppTheme.current.textStyles.title0,
-                ),
+                Text('services_page_title'.tr, style: AppTheme.current.textStyles.title0),
                 _buildRightBtn(context),
               ],
             ),
@@ -132,9 +116,7 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Assets.images.iconServiceEffect
-                .image(width: 16, height: 16, fit: BoxFit.fill)
-                .marginOnly(bottom: 4),
+            Assets.images.iconServiceEffect.image(width: 16, height: 16, fit: BoxFit.fill).marginOnly(bottom: 4),
             Text('my_plan_btn'.tr, style: TextStyle(fontSize: 9)),
           ],
         ),
@@ -157,7 +139,6 @@ class ValueAddIndexView extends GetView<ValueAddIndexController> {
             controller.clickArrow(value);
           },
         ),
-    separatorBuilder:
-        (context, index) => Container(height: 0, color: Colors.transparent),
+    separatorBuilder: (context, index) => Container(height: 0, color: Colors.transparent),
   );
 }

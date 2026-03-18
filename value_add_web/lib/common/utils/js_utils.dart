@@ -3,6 +3,7 @@ import 'package:dart_extensions/dart_extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:value_add_web/common/utils/language_manager.dart';
 // import 'package:value_add_web/services/log_service.dart';
 import 'dart:js' as js;
@@ -30,7 +31,7 @@ class JsUtils {
   double bottomBarHeight = 0;
 
   /// 从URL参数中解析Locale，无参数返回null
-  void init() {
+  void init() async {
     final urlParams = WebParamParser.parseUrlParams();
     if (urlParams.isNotEmpty) {
       // 获取具体参数
@@ -44,15 +45,12 @@ class JsUtils {
       topBarHeight = TextUtils.stringToDouble(topBarHeightString);
       bottomBarHeight = TextUtils.stringToDouble(bottomBarHeightString);
 
-      debugPrint(
-        "urlParams: userToken:$userToken,topH:$topBarHeightString,boH:$bottomBarHeightString",
-      );
+      final sp = await SharedPreferences.getInstance();
+      sp.setString("token", "3f2d32708bdd6e0158623c57d29710362a8fefc2");
+
+      debugPrint("urlParams: userToken:$userToken,topH:$topBarHeightString,boH:$bottomBarHeightString");
       if (languageCode.isNotEmpty) {
-        LanguageManager.instance.updateLocale(
-          languageCode,
-          countryCode: countryCode,
-          scriptCode: scriptCode,
-        );
+        LanguageManager.instance.updateLocale(languageCode, countryCode: countryCode, scriptCode: scriptCode);
       }
     }
     deviceMaps = [
@@ -62,6 +60,13 @@ class JsUtils {
         "deviceName": "hmm",
         "deviceThirdPartId": "120001014120366d",
         "uuid": "120001014120366d",
+      },
+      {
+        "deviceId": "ubuntu_esxi-3feab686-966f-4656-9293-1fed935677f9",
+        "firmwareVersion": "1.0.96",
+        "deviceName": "uty",
+        "deviceThirdPartId": "6c2c392a057bba4372lrsa",
+        "uuid": "6c2c392a057bba4372lrsa",
       },
     ];
     _registerMessageListener();
@@ -84,9 +89,7 @@ class JsUtils {
     };
     js.context["receiveNativeDeviceList"] = (String jsonStr) {
       // 解析原生A传来的JSON字符串
-      List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(
-        json.decode(jsonStr),
-      );
+      List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(json.decode(jsonStr));
       // deviceMaps = _deviceList;
 
       debugPrint("✅ Web-B收到原生A的消息：${_deviceList.length}");
@@ -99,9 +102,7 @@ class JsUtils {
     if (fromType.equalsIgnoreCase(FromType.native.name)) {
       String messageType = data['messageType'] ?? "";
       if (messageType.equalsIgnoreCase(MessageType.nativeMessage.name)) {
-      } else if (messageType.equalsIgnoreCase(
-        MessageType.nativeDeviceList.name,
-      )) {
+      } else if (messageType.equalsIgnoreCase(MessageType.nativeDeviceList.name)) {
       } else {}
     } else if (fromType.equalsIgnoreCase(FromType.paymentWeb.name)) {
     } else {}
@@ -115,11 +116,7 @@ class JsUtils {
       return; // 通道不存在，直接终止方法
     }
     // 1. 构造消息体（格式不变，与A端约定一致）
-    final Map<String, dynamic> sendData = {
-      "type": type,
-      "content": "我是Web-B发来的消息，请求原生显示提示",
-      "from": "flutter_web_b",
-    };
+    final Map<String, dynamic> sendData = {"type": type, "content": "我是Web-B发来的消息，请求原生显示提示", "from": "flutter_web_b"};
     String jsonStr = json.encode(sendData);
 
     // ✅ 正确写法（分两步调用：先获取通道对象，再调用postMessage）
@@ -149,10 +146,7 @@ class JsUtils {
         icon: const Icon(CupertinoIcons.back, size: 24, color: Colors.black),
         onPressed: onTap ?? onBackPressed, // 绑定点击事件
         padding: EdgeInsets.zero, // 可选：移除 IconButton 默认内边距，贴合原生样式
-        constraints: const BoxConstraints(
-          minWidth: 44,
-          minHeight: 44,
-        ), // 符合原生点击区域规范
+        constraints: const BoxConstraints(minWidth: 44, minHeight: 44), // 符合原生点击区域规范
       );
     } else {
       // 安卓风格可点击返回图标
