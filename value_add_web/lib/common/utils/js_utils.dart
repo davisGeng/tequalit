@@ -10,6 +10,7 @@ import 'dart:js' as js;
 import 'dart:convert';
 
 import 'package:value_add_web/common/utils/text_utils.dart';
+import 'package:value_add_web/common/widget/basic_toast.dart';
 
 // 给enum添加常量字符串属性typeName（编译时常量）
 enum FromType { native, paymentWeb, unknown }
@@ -21,17 +22,19 @@ class JsUtils {
   static final _instance = JsUtils();
   static JsUtils get instance => _instance;
 
+  String flutterAppChannel = "flutter_app_web_channel";
+
   int deviceCount = 0;
   String userToken = "";
   bool hadUpdateDevice = false;
   List<Map<String, dynamic>> deviceMaps = [];
 
-  String appPlatform = "android";
+  String platform = "android";
   double topBarHeight = 0;
   double bottomBarHeight = 0;
 
   /// 从URL参数中解析Locale，无参数返回null
-  void init() async {
+  Future init() async {
     final urlParams = WebParamParser.parseUrlParams();
     if (urlParams.isNotEmpty) {
       // 获取具体参数
@@ -39,100 +42,119 @@ class JsUtils {
       String countryCode = urlParams['countryCode'] ?? "";
       String scriptCode = urlParams['scriptCode'] ?? "";
       userToken = urlParams['userToken'] ?? "";
-      appPlatform = urlParams['appPlatform'] ?? "";
-      String topBarHeightString = urlParams['topBarHeight'] ?? "";
-      String bottomBarHeightString = urlParams['bottomBarHeight'] ?? "";
-      topBarHeight = TextUtils.stringToDouble(topBarHeightString);
-      bottomBarHeight = TextUtils.stringToDouble(bottomBarHeightString);
+      platform = urlParams['platform'] ?? "";
 
-      final sp = await SharedPreferences.getInstance();
-      sp.setString("token", "3f2d32708bdd6e0158623c57d29710362a8fefc2");
+      topBarHeight = TextUtils.stringToDouble(urlParams['topBarHeight'] ?? "");
+      bottomBarHeight = TextUtils.stringToDouble(urlParams['bottomBarHeight'] ?? "");
 
-      debugPrint("urlParams: userToken:$userToken,topH:$topBarHeightString,boH:$bottomBarHeightString");
+      debugPrint("urlParams: userToken:$userToken,topH:$topBarHeight,boH:$bottomBarHeight");
       if (languageCode.isNotEmpty) {
         LanguageManager.instance.updateLocale(languageCode, countryCode: countryCode, scriptCode: scriptCode);
       }
     }
-    deviceMaps = [
-      {
-        "deviceId": "ubuntu_esxi-308793a3-cae9-4734-bee9-6c71eb6edbee",
-        "firmwareVersion": "1.0.96",
-        "deviceName": "hmm",
-        "deviceThirdPartId": "120001014120366d",
-        "uuid": "120001014120366d",
-      },
-      {
-        "deviceId": "ubuntu_esxi-3feab686-966f-4656-9293-1fed935677f9",
-        "firmwareVersion": "1.0.96",
-        "deviceName": "uty",
-        "deviceThirdPartId": "6c2c392a057bba4372lrsa",
-        "uuid": "6c2c392a057bba4372lrsa",
-      },
-    ];
-    _registerMessageListener();
+    // deviceMaps = [
+    //   {
+    //     "deviceId": "ubuntu_esxi-308793a3-cae9-4734-bee9-6c71eb6edbee",
+    //     "firmwareVersion": "1.0.96",
+    //     "deviceName": "hmm",
+    //     "deviceThirdPartId": "120001014120366d",
+    //     "uuid": "120001014120366d",
+    //   },
+    //   {
+    //     "deviceId": "ubuntu_esxi-3feab686-966f-4656-9293-1fed935677f9",
+    //     "firmwareVersion": "1.0.96",
+    //     "deviceName": "uty",
+    //     "deviceThirdPartId": "6c2c392a057bba4372lrsa",
+    //     "uuid": "6c2c392a057bba4372lrsa",
+    //   },
+    // ];
+    //传入platform
+    _registerMessageListener(isIos: platform.equalsIgnoreCase(TargetPlatform.iOS.name));
   }
 
-  // {
-  //   fromeType:"",
-  //   messageType:"",
-  //   status:"",
-  //   data:""
-  // }
   /// 核心1：注册JS全局方法，供原生A调用（接收A的消息）
-  void _registerMessageListener() {
+  void _registerMessageListener({bool isIos = false}) {
     // 向浏览器window对象挂载JS方法：receiveNativeMessage
-    js.context["receiveMessage"] = (String jsonStr) {
-      // 解析原生A传来的JSON字符串
-      final Map<String, dynamic> data = json.decode(jsonStr);
-      debugPrint("✅ Web-B收到的消息：$data");
-      _handleMessage(data);
-    };
-    js.context["receiveNativeDeviceList"] = (String jsonStr) {
-      // 解析原生A传来的JSON字符串
-      List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(json.decode(jsonStr));
-      // deviceMaps = _deviceList;
+    // js.context["receiveMessage"] = (String jsonStr) {
+    //   // 解析原生A传来的JSON字符串
+    //   final Map<String, dynamic> data = json.decode(jsonStr);
+    //   debugPrint("✅ Web-B收到的消息：$data");
+    //   _handleMessage(data);
+    // };
+    // js.context["receiveNativeDeviceList"] = (String jsonStr) {
+    //   // 解析原生A传来的JSON字符串
+    //   List<Map<String, dynamic>> _deviceList = List<Map<String, dynamic>>.from(json.decode(jsonStr));
+    //   // deviceMaps = _deviceList;
 
-      debugPrint("✅ Web-B收到原生A的消息：${_deviceList.length}");
-    };
-    sendMessageToNative(type: "ready");
+    //   debugPrint("✅ Web-B收到原生A的消息：${_deviceList.length}");
+    // };
+
+    // ✅ 正确方式：监听 window 的 message 事件，App postmessage
+    html.window.addEventListener('message', (html.Event event) {
+      try {
+        final html.MessageEvent msgEvent = event as html.MessageEvent;
+        debugPrint("📦 收到原生消息：${msgEvent.data}");
+
+        String jsonStr = msgEvent.data as String;
+        Map<String, dynamic> parsedData = jsonDecode(jsonStr);
+
+        _handleParsedData(parsedData);
+      } catch (e, stack) {
+        debugPrint("❌ 处理 message 事件异常：$e\n堆栈：$stack");
+      }
+    });
+    // web 监听已设置
+    if (isIos) {
+      sendMessageToNativeIOS(type: "jsReady");
+    } else {
+      sendMessageToNative(type: "jsReady");
+    }
   }
 
-  void _handleMessage(Map<String, dynamic> data) {
-    String fromType = data["fromeType"] ?? "";
-    if (fromType.equalsIgnoreCase(FromType.native.name)) {
-      String messageType = data['messageType'] ?? "";
-      if (messageType.equalsIgnoreCase(MessageType.nativeMessage.name)) {
-      } else if (messageType.equalsIgnoreCase(MessageType.nativeDeviceList.name)) {
-      } else {}
-    } else if (fromType.equalsIgnoreCase(FromType.paymentWeb.name)) {
-    } else {}
-  }
-
-  /// 【已修复】Web-B → 发送消息到原生A（正确调用原生注册的通道）
+  /// Web → 发送消息到App
   void sendMessageToNative({String type = "toast"}) {
     // ========== ✅ 第一步：检查APP通道是否注册（核心） ==========
-    if (js.context["flutter_app_web_channel"] == null) {
-      debugPrint("❌ 检查失败：APP未注册 flutter_app_web_channel 通道，终止发送");
+    if (js.context[flutterAppChannel] == null) {
+      debugPrint("❌ 检查失败：APP未注册 $flutterAppChannel 通道，终止发送");
       return; // 通道不存在，直接终止方法
     }
     // 1. 构造消息体（格式不变，与A端约定一致）
-    final Map<String, dynamic> sendData = {"type": type, "content": "我是Web-B发来的消息，请求原生显示提示", "from": "flutter_web_b"};
+    final Map<String, dynamic> sendData = {"type": type, "data": "我是Web-B发来的消息，请求原生显示提示", "from": "flutter_web_b"};
     String jsonStr = json.encode(sendData);
 
     // ✅ 正确写法（分两步调用：先获取通道对象，再调用postMessage）
-    js.JsObject channel = js.context["flutter_app_web_channel"];
+    js.JsObject channel = js.context[flutterAppChannel];
     channel.callMethod("postMessage", [jsonStr]);
 
     debugPrint("✅ Web-B已向原生A发送消息：$sendData");
   }
 
-  /// 核心3：Web-B 一键返回原生A（URL Scheme协议跳转，最优方案）
-  void backToNativeApp() {
-    debugPrint("🚀 Web-B触发返回原生A");
-    // 调用浏览器JS，跳转自定义Scheme协议（A端会拦截该请求）
-    js.context.callMethod("open", ["flutterapp://backToNative"]);
-    // 进阶：带参数返回 → flutterapp://backToNative?params={"id":123,"name":"test"}
-    // js.context.callMethod("open", ["flutterapp://backToNative?params=${Uri.encodeComponent(json.encode({"id":123}))}"]);
+  // Web → 发送消息到App
+  void sendMessageToNativeIOS({String type = "toast"}) {
+    // ========== ✅ 第一步：检查APP通道是否注册（核心） ==========
+    js.JsObject? webkit = js.context["webkit"] as js.JsObject?;
+    if (webkit == null) {
+      debugPrint("❌ 环境不支持：webkit 对象不存在（非WKWebView环境）");
+      return;
+    }
+
+    js.JsObject? messageHandlers = webkit["messageHandlers"] as js.JsObject?;
+    if (messageHandlers == null) {
+      debugPrint("❌ 检查失败：webkit.messageHandlers 不存在");
+      return;
+    }
+    // 检查目标通道是否存在
+    if (messageHandlers[flutterAppChannel] == null) {
+      debugPrint("❌ 检查失败：APP未注册 $flutterAppChannel 通道");
+      return;
+    }
+
+    final Map<String, dynamic> sendData = {"type": type, "data": "我是Web-B发来的消息，请求原生显示提示", "from": "flutter_web_b"};
+    String jsonStr = json.encode(sendData);
+
+    js.JsObject channel = messageHandlers[""] as js.JsObject;
+    channel.callMethod("postMessage", [jsonStr]);
+    debugPrint("✅ Web-B已向原生A发送消息：$sendData");
   }
 
   Widget buildPlatformBackIcon(VoidCallback? onTap) {
@@ -140,7 +162,7 @@ class JsUtils {
       Get.back();
     }
 
-    if (appPlatform == TargetPlatform.iOS.name) {
+    if (platform.equalsIgnoreCase(TargetPlatform.iOS.name)) {
       // 直接判断 TargetPlatform 类型，比对比 name 更安全
       return IconButton(
         icon: const Icon(CupertinoIcons.back, size: 24, color: Colors.black),
@@ -156,6 +178,63 @@ class JsUtils {
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       );
+    }
+  }
+
+  /// 业务逻辑处理：区分 Map/数组类型
+  void _handleParsedData(Map<String, dynamic> dataMap) {
+    // 安全读取 type 字段（避免空值）
+    final String type = dataMap["type"] ?? "unknown";
+    debugPrint("🔑 消息类型：$type");
+
+    // 安全读取 data 字段（兼容 data 是 Map/数组/null）
+    final dynamic data = dataMap["data"];
+    if (data == null) {
+      debugPrint("⚠️ data 字段为空");
+      return;
+    }
+
+    // 按 type 分支处理
+    switch (type) {
+      case "user_info":
+        if (data is Map<String, dynamic>) {
+          // final String name = data["name"] ?? "未知";
+          // final int age = data["age"] ?? 0;
+          // final bool isVip = data["is_vip"] ?? false;
+          // debugPrint("👤 用户信息：name=$name, age=$age, isVip=$isVip");
+        } else if (data is List<dynamic>) {
+          // 安全过滤：只保留符合类型的元素，避免崩溃
+          deviceMaps =
+              data
+                  .where((item) {
+                    // 校验元素是 Map 且键为 String 类型
+                    return item is Map<String, dynamic>;
+                  })
+                  .cast<Map<String, dynamic>>()
+                  .toList();
+          debugPrint("📜 列表数据：$data");
+        } else {
+          debugPrint("❌ user_info 的 data 不是 Map：$data");
+        }
+        break;
+
+      case "submit_form":
+        if (data is Map<String, dynamic>) {
+          final String formId = data["form_id"] ?? "";
+          final String content = data["content"] ?? "";
+          debugPrint("📝 表单提交：formId=$formId, content=$content");
+        }
+        break;
+
+      case "list_data":
+        if (data is List<dynamic>) {
+          debugPrint("📜 列表数据：$data");
+        }
+        break;
+
+      default:
+        debugPrint("⚠️ 未匹配的消息类型：$type，data：$data");
+        break;
     }
   }
 }

@@ -1,3 +1,4 @@
+import './common/widget/basic_toast.dart';
 import './value_add/value_add_routes.dart';
 import 'dart:convert';
 import 'dart:js' as js;
@@ -58,15 +59,35 @@ final class AppTask {
 
     await Get.putAsync(() => StorageService.instance.init());
     Get.put(WebParamsStore());
-
-    JsUtils.instance.init();
-
-    // ✅ 1. 初始化SharedPreferences（Dio拦截器中获取Token需要）
-    final sp = await SharedPreferences.getInstance();
-    // f9b670b8b4b60062c86de3f215c2c46c1ac0b585
-    // sp.setString("token", "");
+    await JsUtils.instance.init();
 
     ValueAddApi.instance.init("zh");
+
+    // html.window.addEventListener('message', (html.Event event) {
+    //   JsUtils.instance.sendMessageToNativeIOS(type: "ready");
+
+    //   // 转换为 MessageEvent 类型，获取数据
+    //   final html.MessageEvent msgEvent = event as html.MessageEvent;
+    //   // BasicToast.info("✅ 收到WebView就绪通知");
+
+    //   // 解析 Swift 发送的 data
+    //   // if (msgEvent.data == 'onWebViewReady') {
+    //   //   debugPrint("✅ 收到WebView就绪通知");
+    //   //   BasicToast.info("✅ 收到WebView就绪通知");
+
+    //   //   if (isIos) {
+    //   // sendMessageToNativeIOS(type: "ready");
+    //   //   } else {
+    //   //     sendMessageToNative(type: "ready");
+    //   //   }
+    //   // }
+
+    //   // 如果 Swift 端发送的是 JSON 对象（更推荐），可以这样解析：
+    //   // if (msgEvent.data is Map<String, dynamic> &&
+    //   //     msgEvent.data['type'] == 'onWebViewReady') {
+    //   //   // 处理逻辑
+    //   // }
+    // });
   }
 }
 
@@ -84,8 +105,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // 初始化：注册【接收原生A消息】的JS方法（供A调用）
-    // _registerMessageListener();
   }
 
   /// 核心1：注册JS全局方法
@@ -113,25 +132,7 @@ class _HomePageState extends State<HomePage> {
     //   // 可把参数存入GetX全局状态，让子页面获取
     //   Get.find<WebParamsStore>().updateStatus(status, timestamp);
     // };
-    _sendMessageToNative(type: "ready");
-  }
-
-  /// 【已修复】Web-B → 发送消息到原生A（正确调用原生注册的通道）
-  void _sendMessageToNative({String type = "toast"}) {
-    // ========== ✅ 第一步：检查APP通道是否注册（核心） ==========
-    if (js.context["flutter_app_web_channel"] == null) {
-      debugPrint("❌ 检查失败：APP未注册 flutter_app_web_channel 通道，终止发送");
-      return; // 通道不存在，直接终止方法
-    }
-    // 1. 构造消息体（格式不变，与A端约定一致）
-    final Map<String, dynamic> sendData = {"type": type, "content": "我是Web-B发来的消息，请求原生显示提示", "from": "flutter_web_b"};
-    String jsonStr = json.encode(sendData);
-
-    // ✅ 正确写法（分两步调用：先获取通道对象，再调用postMessage）
-    js.JsObject channel = js.context["flutter_app_web_channel"];
-    channel.callMethod("postMessage", [jsonStr]);
-
-    debugPrint("✅ Web-B已向原生A发送消息：$sendData");
+    // _sendMessageToNative(type: "ready");
   }
 
   /// 核心3：Web-B 一键返回原生A（URL Scheme协议跳转，最优方案）
@@ -167,7 +168,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 30),
               // Web→Native 发送消息按钮
               ElevatedButton(
-                onPressed: _sendMessageToNative,
+                onPressed: null,
                 style: ElevatedButton.styleFrom(minimumSize: const Size(300, 50)),
                 child: const Text("Web-B → 发送消息到原生A"),
               ),

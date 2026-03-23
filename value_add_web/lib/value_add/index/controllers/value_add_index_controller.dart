@@ -12,8 +12,7 @@ import '../../../model/value_add_product_response.dart';
 import '../../../services/log_service.dart';
 import '../../value_add_routes.dart';
 
-class ValueAddIndexController extends RouteViewController
-    with LoadableWebController {
+class ValueAddIndexController extends RouteViewController with LoadableWebController {
   // 翻页数据
   int currentPage = 1;
   final int pageSize = 10;
@@ -88,13 +87,12 @@ class ValueAddIndexController extends RouteViewController
 
   Future<void> _fetchData() async {
     await Future.delayed(Duration(seconds: 1));
-    ValueAddProductResponse? response = await ValueAddApi.instance
-        .getProductList(
-          filterCountry: false,
-          // productType: "CLOUD_STORAGE",
-          page: currentPage,
-          pageSize: pageSize,
-        );
+    ValueAddProductResponse? response = await ValueAddApi.instance.getProductList(
+      filterCountry: false,
+      // productType: "CLOUD_STORAGE",
+      page: currentPage,
+      pageSize: pageSize,
+    );
     if (response != null) {
       List<ValueAddProductItem> subItems = response.items ?? [];
       if (currentPage == 1) {
@@ -123,22 +121,17 @@ class ValueAddIndexController extends RouteViewController
 
       refreshController.finishLoad(IndicatorResult.fail);
     } finally {
-      var noMore =
-          isMoreDataAvailable.isTrue
-              ? IndicatorResult.success
-              : IndicatorResult.noMore;
+      var noMore = isMoreDataAvailable.isTrue ? IndicatorResult.success : IndicatorResult.noMore;
 
       refreshController.finishLoad(noMore);
     }
   }
 
   clickArrow(ValueAddProductItem item) {
+    JsUtils.instance.sendMessageToNative();
     Get.toNamed(
       ValueAddPaths.valueAddPackageChoose,
-      arguments: {
-        "fromPageType": FromPageType.valueAddIndex.name,
-        "productId": item.productId,
-      },
+      arguments: {"fromPageType": FromPageType.valueAddIndex.name, "productId": item.productId},
     );
     // Get.to(
     //   ValueAddIndexView2(),
